@@ -36,6 +36,7 @@ updated: 2026-11-23
 | 跌停 | 一天內跌到下限（開盤競價基準－10%） | [漲跌幅限制](rules/price-limit.md) |
 | 零股 | 1～999 股的交易，不到一張 | [整股與零股](rules/trading-unit.md) |
 | 盤後零股 | 收盤後 13:40～14:30 另外進行的零股交易 | [台股交易時間](rules/trading-hours.md) |
+| 集合競價 | 把一段時間內的買賣單集中起來，一次撮合；盤中零股每 1 分鐘撮合一次 | [整股與零股](rules/trading-unit.md) |
 | 限價 | 自己指定價格下單 | [委託種類](rules/order-types.md) |
 | 市價 | 不指定價格，直接跟對手方正在排隊的價格成交 | [委託種類](rules/order-types.md) |
 | ROD | 當日有效：今天收盤前都有效，沒成交就繼續排隊 | [委託種類](rules/order-types.md) |

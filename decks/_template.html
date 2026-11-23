@@ -202,7 +202,7 @@
 
   /* 模擬下單 .sim */
   .sim { display: grid; grid-template-columns: 1.15fr 1fr; gap: 2.2vw; font-size: clamp(12px, 1.25vw, 16px); align-items: start; }
-  .srow { display: grid; grid-template-columns: 1.4em 6.2em 1fr; align-items: center; gap: .4em; padding: .7vh 0; border-bottom: 1px dashed var(--line); }
+  .srow { display: grid; grid-template-columns: 1.4em 6.2em 1fr; align-items: center; gap: .4em; padding: .45vh 0; border-bottom: 1px dashed var(--line); }
   .srow .sn { color: var(--teal); font-weight: 700; } .srow > b { font-weight: 500; }
   .seg { display: flex; flex-wrap: wrap; gap: .3em; align-items: center; }
   .seg button, .sim .send { font: inherit; padding: .3em .8em; border: 1px solid var(--teal); background: var(--paper); color: var(--teal-deep); cursor: pointer; }
@@ -214,7 +214,8 @@
   table.book.mini { font-size: clamp(12px, 1.2vw, 15px); width: 100%; }
   table.book.mini th { padding: .4em .5em; } table.book.mini td { padding: .28em .5em; }
   table.book.mini tr.hitA td.ask, table.book.mini tr.hitB td.bid { background: var(--teal-pale); font-weight: 700; }
-  .ticket { margin-top: 1.2vh; border: 1px solid var(--line); border-top: 3px solid var(--teal); background: var(--paper); padding: 1vh 1vw; line-height: 1.65; min-height: 8em; }
+  .ticket { margin-top: 1vh; border: 1px solid var(--line); border-top: 3px solid var(--teal); background: var(--paper); padding: .8vh 1vw; line-height: 1.5; min-height: 8em; }
+  .ticket p { margin: .35em 0; }
   .ticket .t-sum { color: var(--soft); font-size: .88em; margin-bottom: .3em; }
   .ticket b { color: var(--teal-deep); } .ticket .err { color: #c8553d; }
   /* 名詞小卡：逐頁稿「術語」欄，術語第一次出現的那一頁才有 */
@@ -359,15 +360,24 @@
       });
     });
   });
-  /* 模擬下單：虛構五檔、盤中逐筆交易時段；手續費 0.1425%、證交稅 0.3%（假設不打折、未計最低手續費；不考慮國定假日） */
+  /* 模擬下單：虛構五檔、盤中時段；手續費 0.1425%、證交稅 0.3%（假設不打折）；零股另比較最低手續費 20 元；不考慮國定假日 */
   document.querySelectorAll('.sim').forEach(function (m) {
-    var ASK = [[100.0, 10], [100.5, 20], [101.0, 15], [101.5, 30], [102.0, 25]];
-    var BID = [[99.9, 30], [99.8, 25], [99.7, 40], [99.6, 18], [99.5, 50]];
-    var HOLD = 50, st = { side: 'buy', unit: 'lot', ptype: 'limit', tif: 'ROD' };
+    var BOOK = {
+      lot: { ask: [[100.0, 10], [100.5, 20], [101.0, 15], [101.5, 30], [102.0, 25]], bid: [[99.9, 30], [99.8, 25], [99.7, 40], [99.6, 18], [99.5, 50]], u: '張', hold: 50, max: 99, cap: '整股五檔（張）' },
+      odd: { ask: [[100.5, 80], [101.0, 120], [101.5, 60], [102.0, 200], [102.5, 150]], bid: [[100.0, 90], [99.9, 150], [99.8, 70], [99.7, 300], [99.5, 100]], u: '股', hold: 300, max: 999, cap: '盤中零股五檔（股）｜價格可能和整股不同' }
+    };
+    var st = { side: 'buy', unit: 'lot', ptype: 'limit', tif: 'ROD' }, shown = '';
     var price = m.querySelector('[name=price]'), qty = m.querySelector('[name=qty]'), day = m.querySelector('[name=day]');
     var out = m.querySelector('.ticket'), lock = m.querySelector('.lockmsg'), uLabel = m.querySelector('.ulabel');
+    var table = m.querySelector('table.book'), cap = m.querySelector('.bookcap');
     var names = ['週一', '週二', '週三', '週四', '週五', '週六', '週日'];
     function f1(p) { return p.toFixed(1); }
+    function drawBook() {
+      var B = BOOK[st.unit]; if (shown === st.unit) return; shown = st.unit;
+      var h = '<tr><th>委買' + B.u + '數</th><th>委買價</th><th class="mid">委賣價</th><th>委賣' + B.u + '數</th></tr>';
+      B.bid.forEach(function (x, k) { var y = B.ask[k]; h += '<tr><td>' + x[1] + '</td><td class="bid">' + f1(x[0]) + '</td><td class="ask mid">' + f1(y[0]) + '</td><td>' + y[1] + '</td></tr>'; });
+      table.innerHTML = h; cap.textContent = B.cap;
+    }
     function sync() {
       m.querySelectorAll('.srow[data-k]').forEach(function (r) {
         r.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', st[r.dataset.k] === b.dataset.v); });
@@ -377,47 +387,52 @@
         b.disabled = odd && ['market', 'IOC', 'FOK'].indexOf(b.dataset.v) > -1;
       });
       price.disabled = st.ptype === 'market';
-      uLabel.textContent = odd ? '股' : '張';
-      qty.max = odd ? 999 : 99;
-      lock.textContent = odd ? '零股只能用限價＋ROD，已自動鎖定。' : '';
+      uLabel.textContent = BOOK[st.unit].u; qty.max = BOOK[st.unit].max;
+      lock.textContent = odd ? '零股只能用限價＋ROD（已自動鎖定），每 1 分鐘集合競價撮合一次。' : '';
+      drawBook();
       m.querySelectorAll('tr').forEach(function (r) { r.classList.remove('hitA', 'hitB'); });
     }
     m.querySelectorAll('.srow[data-k] button').forEach(function (b) {
       b.addEventListener('click', function () {
         var k = b.closest('.srow').dataset.k; st[k] = b.dataset.v;
-        if (k === 'unit' && b.dataset.v === 'odd') { st.ptype = 'limit'; st.tif = 'ROD'; if (+qty.value < 1) qty.value = 100; }
-        if (k === 'unit' && b.dataset.v === 'lot' && +qty.value > 99) qty.value = 15;
+        if (k === 'unit') {
+          if (b.dataset.v === 'odd') { st.ptype = 'limit'; st.tif = 'ROD'; qty.value = 150; price.value = '101.0'; }
+          else { qty.value = 15; price.value = '100.5'; }
+        }
         sync();
       });
     });
     function t2(d0) { var d = d0, left = 2; while (left > 0) { d++; if (d % 7 < 5) left--; } return (d >= 7 ? '下' : '') + names[d % 7]; }
     m.querySelector('.send').addEventListener('click', function () {
       sync();
-      var buy = st.side === 'buy', odd = st.unit === 'odd', q = +qty.value, lim = +price.value, unit = odd ? '股' : '張';
-      var sum = '你的委託單：' + (buy ? '買進' : '賣出') + ' 範例股 0000｜' + (odd ? '零股 ' : '整股 ') + q + ' ' + unit + '｜' +
+      var B = BOOK[st.unit], buy = st.side === 'buy', odd = st.unit === 'odd', q = +qty.value, lim = +price.value, u = B.u;
+      var sum = '你的委託單：' + (buy ? '買進' : '賣出') + ' 範例股 0000｜' + (odd ? '零股 ' : '整股 ') + q + ' ' + u + '｜' +
         (st.ptype === 'market' ? '市價' : '限價 ' + f1(lim) + ' 元') + '｜' + st.tif;
-      var max = odd ? 999 : 99;
-      if (!(q >= 1 && q <= max && Math.floor(q) === q)) { out.innerHTML = '<p class="t-sum">' + sum + '</p><p class="err">數量要填 1～' + max + ' 的整數' + unit + '。</p>'; return; }
-      if (!buy && !odd && q > HOLD) { out.innerHTML = '<p class="t-sum">' + sum + '</p><p class="err">你只有 ' + HOLD + ' 張，不能賣 ' + q + ' 張。</p>'; return; }
-      if (odd) { out.innerHTML = '<p class="t-sum">' + sum + '</p><p>委託已送出。盤中零股是另一個排隊市場，成交價可能和整股不同，所以右邊的整股五檔不適用。</p><p class="note-sm" style="margin:0">本模擬不示範零股的成交結果。</p>'; return; }
-      var book = buy ? ASK : BID, mk = st.ptype === 'market';
+      var head = '<p class="t-sum">' + sum + '</p>';
+      if (!(q >= 1 && q <= B.max && Math.floor(q) === q)) { out.innerHTML = head + '<p class="err">數量要填 1～' + B.max + ' 的整數' + u + '。</p>'; return; }
+      if (!buy && q > B.hold) { out.innerHTML = head + '<p class="err">你只有 ' + B.hold + ' ' + u + (odd ? '零股' : '') + '，不能賣 ' + q + ' ' + u + '。</p>'; return; }
+      var book = buy ? B.ask : B.bid, mk = st.ptype === 'market';
       function ok(p) { return mk || (buy ? p <= lim : p >= lim); }
       var avail = 0; book.forEach(function (l) { if (ok(l[0])) avail += l[1]; });
-      var fills = [], left = q, rows = m.querySelectorAll('table.book tr');
+      var fills = [], left = q, rows = table.querySelectorAll('tr');
       if (!(st.tif === 'FOK' && avail < q)) {
         book.forEach(function (l, k) { if (left > 0 && ok(l[0])) { var n = Math.min(left, l[1]); fills.push([l[0], n]); left -= n; rows[k + 1].classList.add(buy ? 'hitA' : 'hitB'); } });
       }
-      var got = q - left, html = '<p class="t-sum">' + sum + '</p>';
-      if (got) html += '<p><b>成交 ' + got + ' 張：</b>' + fills.map(function (x) { return f1(x[0]) + ' 元 × ' + x[1] + ' 張'; }).join('、') + '</p>';
-      if (st.tif === 'FOK' && avail < q) html += '<p><b>整筆取消：</b>現在只能馬上成交 ' + avail + ' 張，不能一次全部成交。</p>';
-      else if (left && st.tif === 'IOC') html += got ? '<p><b>剩下 ' + left + ' 張立即取消。</b></p>' : '<p><b>全部 ' + left + ' 張立即取消：</b>現在沒有' + (buy ? '開價 ' + f1(lim) + ' 元以下的賣單' : '出價 ' + f1(lim) + ' 元以上的買單') + '可以馬上成交。</p>';
+      var got = q - left, html = head;
+      if (odd) html += '<p class="t-sum">10:00:20 送出 → 等 10:01 的集合競價撮合</p>';
+      if (got) html += '<p><b>' + (odd ? '10:01 撮合，' : '') + '成交 ' + got + ' ' + u + '：</b>' + fills.map(function (x) { return f1(x[0]) + ' 元 × ' + x[1] + ' ' + u; }).join('、') + '</p>';
+      var other = buy ? '開價 ' + f1(lim) + ' 元以下的' + (odd ? '零股' : '') + '賣單' : '出價 ' + f1(lim) + ' 元以上的' + (odd ? '零股' : '') + '買單';
+      if (st.tif === 'FOK' && avail < q) html += '<p><b>整筆取消：</b>現在只能馬上成交 ' + avail + ' ' + u + '，不能一次全部成交。</p>';
+      else if (left && st.tif === 'IOC') html += got ? '<p><b>剩下 ' + left + ' ' + u + '立即取消。</b></p>' : '<p><b>全部 ' + left + ' ' + u + '立即取消：</b>現在沒有' + other + '可以馬上成交。</p>';
+      else if (left && odd) html += '<p><b>' + (got ? '剩下 ' : '這次沒成交，全部 ') + left + ' 股繼續排隊：</b>' + (got ? '' : '沒有' + other + '。') + '之後每分鐘再撮合，有效到 13:30；沒成交不會留到盤後零股。</p>';
       else if (left) html += '<p><b>' + (got ? '剩下 ' : '全部 ') + left + ' 張繼續排隊：</b>以 ' + f1(lim) + ' 元排在' + (buy ? '委買' : '委賣') + '，同價位排在先送出的單後面；今天收盤前有效。</p>';
       if (got) {
-        var amt = 0; fills.forEach(function (x) { amt += x[0] * x[1] * 1000; });
-        var fee = amt * 0.001425, tax = buy ? 0 : amt * 0.003, d = t2(+day.value);
+        var amt = 0; fills.forEach(function (x) { amt += x[0] * x[1] * (odd ? 1 : 1000); });
+        var fee = amt * 0.001425, tax = buy ? 0 : amt * 0.003, d = t2(+day.value), feeUse = fee;
         html += '<p>成交金額 ' + money(amt) + '｜手續費 ' + money(fee) + (buy ? '' : '｜證交稅 ' + money(tax)) + '</p>';
-        html += buy ? '<p><b>' + d + '上午 10 點前</b>，交割帳戶要有 ' + money(amt + fee) + '。</p>'
-                    : '<p><b>' + d + '上午 11 點後</b>，約 ' + money(amt - fee - tax) + ' 匯入交割帳戶。</p>';
+        if (odd && fee < 20) { feeUse = 20; html += '<p class="t-sum">券商常有最低手續費（例如 20 元）：手續費變 20 元，約占 ' + (20 / amt * 100).toFixed(2) + '%（標準 0.1425%），下面以 20 元計。</p>'; }
+        html += buy ? '<p><b>' + d + '上午 10 點前</b>，交割帳戶要有 ' + money(amt + feeUse) + '。</p>'
+                    : '<p><b>' + d + '上午 11 點後</b>，約 ' + money(amt - feeUse - tax) + ' 匯入交割帳戶。</p>';
       }
       out.innerHTML = html;
     });

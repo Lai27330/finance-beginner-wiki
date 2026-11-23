@@ -159,12 +159,26 @@ def runtime(deck, slug):
                 if idx != i: report('翻頁失敗', deck, f'{name} 第 {i+1} 頁無法切換'); break
                 pg.wait_for_timeout(500)
                 if name == 'desktop':
-                    over = pg.evaluate("(() => { const s = document.querySelector('.slide.active'); return s.scrollHeight - s.clientHeight; })()")
+                    over = pg.evaluate(OVER)
                     if over > 4: report('版面溢出', deck, f'第 {i+1} 頁超出畫面 {over}px')
+                    # 互動後的狀態也要檢查：模擬下單送出結果最長的情況（零股賣出、最低手續費）
+                    if pg.locator('.slide.active .sim').count():
+                        sim = pg.locator('.slide.active .sim')
+                        sim.locator('.srow[data-k=unit] button[data-v=odd]').click(); sim.locator('.srow[data-k=side] button[data-v=sell]').click()
+                        sim.locator('[name=price]').select_option('99.9'); sim.locator('[name=qty]').fill('100'); sim.locator('.send').click()
+                        over = pg.evaluate(OVER)
+                        if over > 4: report('版面溢出', deck, f'第 {i+1} 頁送出模擬單後超出畫面 {over}px')
+                        sim.locator('.srow[data-k=unit] button[data-v=lot]').click(); sim.locator('.srow[data-k=side] button[data-v=buy]').click()
                 pg.screenshot(path=f'{out}/{name}-{i+1:02d}.png')
                 pg.keyboard.press('ArrowRight')
             for e in errs: report('JS 錯誤', deck, f'{name}：{e[:60]}')
         b.close()
+
+# 內容有沒有超出畫面：看投影片裡每個元素的上下邊界（置中排版時，往上超出不會反映在 scrollHeight）
+OVER = """(() => { const s = document.querySelector('.slide.active'), r = s.getBoundingClientRect();
+  let top = Infinity, bot = -Infinity;
+  s.querySelectorAll(':scope > *:not(aside)').forEach(e => { const b = e.getBoundingClientRect(); if (b.height) { top = Math.min(top, b.top); bot = Math.max(bot, b.bottom); } });
+  return Math.round(Math.max(r.top - top, bot - r.bottom, 0)); })()"""
 
 def g5(slug):
     for d in glob.glob(f'decks/*-{slug}/index.html'):

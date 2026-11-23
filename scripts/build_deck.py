@@ -275,12 +275,12 @@ S.append(sec('t2','六・交割',['wiki/rules/settlement-t2.md'],'''    <p class
     <p class="note-sm">不考慮國定假日；遇到休市要再往後延（2026 年規定）。</p>''','週末不算營業日；遇到國定假日、颱風休市還要再往後延。'))
 S.append(sec('sim','綜合練習',['wiki/rules/order-types.md','wiki/concepts/order-book.md','wiki/rules/trading-costs.md','wiki/rules/settlement-t2.md','wiki/rules/trading-unit.md'],'''    <p class="kicker">綜合練習｜動手做</p>
     <h2>自己下一張單試試看</h2>
-    <p class="lead" style="margin-bottom:2vh">照順序填完委託單，按「送出」看會怎樣成交、要付多少、哪天扣款。</p>
+    <p class="lead" style="margin-bottom:1.2vh">照順序填完委託單，按「送出」看會怎樣成交、要付多少、哪天扣款。</p>
     <div class="sim">
       <div>
         <div class="srow" data-k="side"><span class="sn">①</span><b>買或賣</b><div class="seg"><button type="button" data-v="buy">買進</button><button type="button" data-v="sell">賣出</button></div></div>
         <div class="srow" data-k="unit"><span class="sn">②</span><b>單位</b><div class="seg"><button type="button" data-v="lot">整股（張）</button><button type="button" data-v="odd">零股（股）</button></div></div>
-        <div class="srow" data-k="ptype"><span class="sn">③</span><b>價格</b><div class="seg"><button type="button" data-v="limit">限價</button><select name="price" aria-label="限價價格"><option value="99.5">99.5</option><option value="99.6">99.6</option><option value="99.7">99.7</option><option value="99.8">99.8</option><option value="99.9">99.9</option><option value="100.0">100.0</option><option value="100.5" selected>100.5</option><option value="101.0">101.0</option><option value="101.5">101.5</option><option value="102.0">102.0</option></select><button type="button" data-v="market">市價</button></div></div>
+        <div class="srow" data-k="ptype"><span class="sn">③</span><b>價格</b><div class="seg"><button type="button" data-v="limit">限價</button><select name="price" aria-label="限價價格"><option value="99.5">99.5</option><option value="99.6">99.6</option><option value="99.7">99.7</option><option value="99.8">99.8</option><option value="99.9">99.9</option><option value="100.0">100.0</option><option value="100.5" selected>100.5</option><option value="101.0">101.0</option><option value="101.5">101.5</option><option value="102.0">102.0</option><option value="102.5">102.5</option></select><button type="button" data-v="market">市價</button></div></div>
         <div class="srow"><span class="sn">④</span><b>數量</b><div class="seg"><input name="qty" type="number" value="15" min="1" max="99" step="1" aria-label="數量"><span class="ulabel">張</span></div></div>
         <div class="srow" data-k="tif"><span class="sn">⑤</span><b>等多久</b><div class="seg"><button type="button" data-v="ROD">ROD</button><button type="button" data-v="IOC">IOC</button><button type="button" data-v="FOK">FOK</button></div></div>
         <div class="srow"><span class="sn">⑥</span><b>今天是</b><div class="seg"><select name="day" aria-label="成交日"><option value="0">週一</option><option value="1">週二</option><option value="2">週三</option><option value="3" selected>週四</option><option value="4">週五</option></select></div></div>
@@ -288,14 +288,15 @@ S.append(sec('sim','綜合練習',['wiki/rules/order-types.md','wiki/concepts/or
         <button type="button" class="send">送出委託單</button>
       </div>
       <div>
+        <p class="note-sm bookcap" style="margin:0 0 .4vh">整股五檔（張）</p>
         <table class="book mini" aria-label="虛構範例股 0000 五檔">
           <tr><th>委買張數</th><th>委買價</th><th class="mid">委賣價</th><th>委賣張數</th></tr>
           <tr><td>30</td><td class="bid">99.9</td><td class="ask mid">100.0</td><td>10</td></tr><tr><td>25</td><td class="bid">99.8</td><td class="ask mid">100.5</td><td>20</td></tr><tr><td>40</td><td class="bid">99.7</td><td class="ask mid">101.0</td><td>15</td></tr><tr><td>18</td><td class="bid">99.6</td><td class="ask mid">101.5</td><td>30</td></tr><tr><td>50</td><td class="bid">99.5</td><td class="ask mid">102.0</td><td>25</td></tr>
         </table>
-        <div class="ticket" aria-live="polite"><p class="t-sum">情境：盤中 10:00，你已持有 50 張範例股 0000。</p><p>填好左邊再按「送出委託單」。<br>試試：市價買 15 張；限價 99.9 元用 IOC 買；FOK 買 50 張。</p></div>
+        <div class="ticket" aria-live="polite"><p class="t-sum">情境：盤中 10:00，你已持有範例股 0000 50 張又 300 股。</p><p>填好左邊再按「送出委託單」。<br>試試：市價買 15 張；FOK 買 50 張；<br>零股限價 101.0 元買 150 股。</p></div>
       </div>
     </div>
-    <p class="note-sm" style="margin-top:1.2vh">虛構五檔。手續費 0.1425%、證交稅 0.3%（2026 年規定），假設不打折、未計最低手續費；不考慮國定假日。</p>''','試試看：市價買 15 張、限價 99.9 元用 IOC 買、FOK 買 50 張。'))
+    <p class="note-sm" style="margin-top:1.2vh">虛構五檔。費率 0.1425%、證交稅 0.3%（2026 年），不打折；零股以最低手續費 20 元為例、成交價簡化計算；不考慮國定假日。</p>''','試試看：市價買 15 張、FOK 買 50 張、零股限價 101.0 元買 150 股。'))
 S.append(sec('list','六・交割',['wiki/concepts/default-settlement.md'],'''    <p class="kicker">六、交割</p>
     <h2>錢不夠，會發生什麼事？</h2>
     <p class="lead">違約交割的後果，比想像中嚴重。<span class="tag-b">B 級報導・法規原文待確認</span></p>
