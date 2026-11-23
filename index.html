@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>理財新手村｜新手投資順序與看懂盤面</title>
+<style>
+  :root { --bg:#f7f5ef; --paper:#fffdf8; --ink:#2b3a38; --soft:#6b7775; --line:#dcd8cc; --teal:#3f7d78; --deep:#24524f; --pale:#e4efec; --shu:#c8553d;
+    --serif:"Noto Serif TC","Source Han Serif TC","Songti TC",serif; --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.75; }
+  main { max-width: 980px; margin: 0 auto; padding: 56px 24px 72px; }
+  .kicker { color: var(--teal); letter-spacing: .3em; font-size: 14px; margin: 0; }
+  h1 { font-family: var(--serif); font-size: clamp(34px, 6vw, 56px); margin: 8px 0 4px; letter-spacing: .04em; }
+  .lead { font-size: 19px; color: var(--soft); margin: 0 0 28px; }
+  h2 { font-family: var(--serif); font-size: 26px; margin: 48px 0 14px; padding-left: 14px; border-left: 4px solid var(--teal); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+  .card { display: block; background: var(--paper); border: 1px solid var(--line); border-top: 3px solid var(--teal); padding: 18px; color: inherit; text-decoration: none; transition: transform .15s; }
+  .card:hover { transform: translateY(-2px); border-color: var(--teal); }
+  .card b { font-family: var(--serif); font-size: 20px; color: var(--deep); display: block; }
+  .card span { font-size: 14px; color: var(--soft); }
+  .card.main { background: var(--deep); border-color: var(--deep); }
+  .card.main b, .card.main span { color: #fff; }
+  .stats { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 18px 0 0; padding: 0; list-style: none; color: var(--soft); }
+  .stats b { font-family: var(--serif); font-size: 26px; color: var(--teal); margin-right: 4px; }
+  figure { margin: 0; background: var(--paper); border: 1px solid var(--line); padding: 16px; overflow-x: auto; }
+  svg { width: 100%; min-width: 640px; height: auto; font-family: var(--sans); }
+  figcaption, .note { font-size: 14px; color: var(--soft); }
+  ul.plain { padding-left: 1.2em; } ul.plain li { margin: 4px 0; }
+  .disclaimer { margin-top: 48px; padding: 14px 18px; border: 1px solid var(--shu); color: var(--shu); background: var(--paper); }
+  footer { margin-top: 24px; font-size: 13px; color: var(--soft); }
+  a { color: var(--deep); }
+</style>
+</head>
+<body>
+<main>
+  <p class="kicker">LLM WIKI × 教學簡報</p>
+  <h1>理財新手村</h1>
+  <p class="lead">從「為什麼要投資」到「自己下一張單」：用 LLM Wiki 整理台股新手該知道的投資順序與看盤基本功，再產生一份可以動手練習的教學簡報。</p>
+
+  <div class="cards">
+    <a class="card main" href="decks/2026-11-22-invest-order-and-quotes/"><b>看教學簡報 →</b><span>24 頁，含複利試算、五檔、T+2 推算、模擬下單、小測驗</span></a>
+    <a class="card repo" data-path="wiki/index.md" href="wiki/index.md"><b>Wiki 目錄</b><span>概念頁、制度頁、來源摘要與名詞小辭典</span></a>
+    <a class="card repo" data-path="runs/2026-11-22-invest-order-and-quotes.md" href="runs/2026-11-22-invest-order-and-quotes.md"><b>執行與檢查紀錄</b><span>每一關的通過／不通過、Loop 紀錄與反思</span></a>
+    <a class="card repo" data-path="AGENTS.md" href="AGENTS.md"><b>AGENTS.md</b><span>Wiki 的規則書：流程、關卡、寫作與安全規則</span></a>
+  </div>
+  <ul class="stats">
+    <li><b>23</b>份來源</li><li><b>19</b>個 Wiki 頁面</li><li><b>24</b>頁簡報</li><li><b>4</b>個 Loop</li><li><b>8</b>次規則修改</li>
+  </ul>
+
+  <h2>流程圖：哪裡會重複、哪裡會檢查</h2>
+  <figure>
+    <svg viewBox="0 0 900 470" role="img" aria-label="LLM Wiki 製作簡報的流程圖，有七個節點、六個關卡和兩個 loop">
+      <defs>
+        <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#3f7d78"/></marker>
+        <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#c8553d"/></marker>
+      </defs>
+      <style>
+        .n rect { fill: #fffdf8; stroke: #3f7d78; stroke-width: 1.5; } .n text { fill: #2b3a38; font-size: 15px; text-anchor: middle; }
+        .n .t { font-weight: 700; fill: #24524f; } .n .s { font-size: 12px; fill: #6b7775; }
+        .g polygon { fill: #e4efec; stroke: #3f7d78; } .g text { font-size: 12px; fill: #24524f; text-anchor: middle; font-weight: 700; }
+        .f { stroke: #3f7d78; stroke-width: 1.6; fill: none; marker-end: url(#a); }
+        .lp { stroke: #c8553d; stroke-width: 1.6; fill: none; stroke-dasharray: 6 4; marker-end: url(#r); }
+        .lt { fill: #c8553d; font-size: 13px; font-weight: 700; } .lt2 { fill: #c8553d; font-size: 12px; }
+      </style>
+      <!-- 上排：N0 → N1 → N2 → N3 -->
+      <g class="n"><rect x="20" y="70" width="160" height="70" rx="4"/><text class="t" x="100" y="98">N0 討論</text><text class="s" x="100" y="120">主題、讀者、動手做目標</text></g>
+      <g class="n"><rect x="250" y="70" width="160" height="70" rx="4"/><text class="t" x="330" y="98">N1 找來源</text><text class="s" x="330" y="120">搜尋＋逐筆試讀，人類挑</text></g>
+      <g class="n"><rect x="480" y="70" width="160" height="70" rx="4"/><text class="t" x="560" y="98">N2 Ingest</text><text class="s" x="560" y="120">存 raw、更新 Wiki</text></g>
+      <g class="n"><rect x="710" y="70" width="170" height="70" rx="4"/><text class="t" x="795" y="98">N3 查詢與筆記</text><text class="s" x="795" y="120">讀 Wiki → 研究筆記</text></g>
+      <path class="f" d="M180 105H250"/><path class="f" d="M410 105H480"/><path class="f" d="M640 105H710"/>
+      <g class="g"><polygon points="215,80 237,105 215,130 193,105"/><text x="215" y="109">G0</text></g>
+      <g class="g"><polygon points="445,80 467,105 445,130 423,105"/><text x="445" y="109">G1</text></g>
+      <g class="g"><polygon points="675,80 697,105 675,130 653,105"/><text x="675" y="109">G2</text></g>
+      <!-- 下排：N4 ← G3 ... N6 -->
+      <g class="g"><polygon points="795,190 819,215 795,240 771,215"/><text x="795" y="219">G3</text></g>
+      <path class="f" d="M795 140V190"/>
+      <path class="f" d="M795 240V280"/>
+      <g class="n"><rect x="710" y="280" width="170" height="70" rx="4"/><text class="t" x="795" y="308">N4 逐頁稿</text><text class="s" x="795" y="330">每章一個動手練習＋術語欄</text></g>
+      <g class="n"><rect x="430" y="280" width="170" height="70" rx="4"/><text class="t" x="515" y="308">N5 產生簡報</text><text class="s" x="515" y="330">模板＋逐頁稿 → HTML</text></g>
+      <g class="n"><rect x="150" y="280" width="170" height="70" rx="4"/><text class="t" x="235" y="308">N6 人類審閱</text><text class="s" x="235" y="330">看得懂？學得到？</text></g>
+      <path class="f" d="M710 315H600"/><path class="f" d="M430 315H320"/>
+      <g class="g"><polygon points="655,290 677,315 655,340 633,315"/><text x="655" y="319">G4</text></g>
+      <g class="g"><polygon points="375,290 397,315 375,340 353,315"/><text x="375" y="319">G5</text></g>
+      <path class="f" d="M235 350V384"/>
+      <text x="235" y="404" font-size="14" fill="#2b3a38" text-anchor="middle">完成：紀錄＋反思</text>
+      <!-- Loop 1：G3 → N1 -->
+      <path class="lp" d="M771 215H330V140"/>
+      <text class="lt" x="420" y="207">Loop 1 資料不夠 → 回 N1 補來源</text>
+      <!-- Loop 2：N6 → N0 -->
+      <path class="lp" d="M150 315H100V140"/>
+      <text class="lt" x="16" y="232">Loop 2</text><text class="lt2" x="16" y="250">太淺／看不懂</text><text class="lt2" x="16" y="266">→ 回 N0</text>
+      <!-- 小 loop 說明 -->
+      <text class="lt2" x="380" y="40">每個 ◇ 關卡沒過 → 回上一個節點修改再檢查；同一關連續 3 次沒過就停下來問人類</text>
+      <text font-size="12" fill="#6b7775" x="430" y="390">G2：有來源、有年份、B 級數字有標　G3：每段對到 Wiki、目標學得到</text>
+      <text font-size="12" fill="#6b7775" x="430" y="410">G4：教學結構、術語自動比對、禁用詞　G5：瀏覽器實際執行、截圖、名詞小卡</text>
+    </svg>
+    <figcaption>◇ 是關卡（G0～G5），實線是正常流程，紅色虛線是會重複的 loop。完整說明在 AGENTS.md 第 6 節。</figcaption>
+  </figure>
+
+  <h2>為什麼這樣設計</h2>
+  <ul class="plain">
+    <li><b>先討論後生成</b>：每次產生簡報前，先在 N0 跟人類確認目標，避免做出方向不對的東西。</li>
+    <li><b>檢查盡量往前移</b>：網頁讀不讀得到在 G1 試讀；學習深度在 G0、G3；術語有沒有解釋在 G4 自動比對，不要等人類看完才發現。</li>
+    <li><b>自動檢查通過 ≠ 通過</b>：腳本只能抓格式和規則，「新手看不看得懂」還是要看截圖、由人類審閱，所以保留 Loop 2。</li>
+  </ul>
+
+  <p class="disclaimer">本網站僅供學習，不構成任何投資建議，也不推薦任何商品。制度數字為 2026 年規定，可能變動，請以證交所、櫃買中心公告為準。報價與五檔為虛構範例。</p>
+  <footer>理財新手村｜依 Karpathy 的 LLM Wiki 架構製作（raw → wiki → AGENTS.md）</footer>
+</main>
+<script>
+  (function () {
+    var h = location.hostname, seg = location.pathname.split('/').filter(Boolean);
+    if (!/\.github\.io$/.test(h) || !seg.length) return;
+    var base = 'https://github.com/' + h.split('.')[0] + '/' + seg[0] + '/blob/main/';
+    document.querySelectorAll('a.repo').forEach(function (a) { a.href = base + a.dataset.path; });
+  })();
+</script>
+</body>
+</html>

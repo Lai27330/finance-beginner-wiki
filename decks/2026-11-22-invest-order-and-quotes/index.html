@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<!-- 理財新手村簡報｜由 decks/_template.html 複製；依據 slides/2026-11-22-invest-order-and-quotes.md -->
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新手投資的第一課｜理財新手村</title>
+<style>
+  :root {
+    /* 清爽日式・藍綠色（草稿）。色碼只寫在這裡。 */
+    --bg: #f7f5ef;        /* 生成り：米白底 */
+    --paper: #fffdf8;
+    --ink: #2b3a38;       /* 墨：主要文字 */
+    --soft: #6b7775;      /* 鼠：次要文字 */
+    --line: #dcd8cc;      /* 細線 */
+    --teal: #3f7d78;      /* 青碧：主色 */
+    --teal-deep: #24524f; /* 深青：標題強調 */
+    --teal-pale: #e4efec; /* 淡青：色塊 */
+    --mist: #c9ddd8;
+    --shu: #c8553d;       /* 朱：只用在印章與答對提示 */
+    --up: #c8453c;        /* 台股慣例：紅漲（只用於報價） */
+    --down: #2f7d5a;      /* 綠跌（只用於報價） */
+    --serif: "Noto Serif TC", "Source Han Serif TC", "Songti TC", "PMingLiU", serif;
+    --sans: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--ink); font-family: var(--sans); }
+  body { background-image: radial-gradient(rgba(60,70,60,.035) 1px, transparent 1px); background-size: 4px 4px; }
+  .deck { position: relative; width: 100vw; height: 100vh; }
+
+  .slide { position: absolute; inset: 0; padding: 9vh 9vw 11vh 11vw; display: flex; flex-direction: column; justify-content: center;
+           opacity: 0; visibility: hidden; transform: translateY(12px); transition: opacity .45s ease, transform .45s ease, visibility .45s; }
+  .slide.active { opacity: 1; visibility: visible; transform: none; }
+  /* 左側直書標籤 */
+  .slide::before { content: attr(data-chapter); position: absolute; left: 3.6vw; top: 9vh; writing-mode: vertical-rl; letter-spacing: .5em;
+                   font-family: var(--serif); font-size: clamp(12px, 1.2vw, 16px); color: var(--teal); padding-top: 1em; border-top: 1px solid var(--teal); }
+  .kicker { font-size: clamp(12px, 1.2vw, 16px); letter-spacing: .25em; color: var(--teal); margin: 0 0 2vh; display: flex; align-items: center; gap: .8em; }
+  .kicker::before { content: ""; width: 2.4em; height: 1px; background: var(--teal); }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; color: var(--ink); }
+  h1 { font-size: clamp(36px, 5.6vw, 76px); line-height: 1.3; letter-spacing: .04em; }
+  h2 { font-size: clamp(26px, 3.6vw, 48px); line-height: 1.35; letter-spacing: .03em; margin-bottom: 1.4vh; }
+  .lead { font-size: clamp(16px, 1.9vw, 26px); color: var(--soft); line-height: 1.7; margin: 0 0 4vh; }
+  .lead strong { color: var(--teal-deep); font-weight: 700; }
+  ul.dots { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.8vh; max-width: 62em; }
+  ul.dots li { font-size: clamp(16px, 1.9vw, 26px); line-height: 1.6; padding-left: 1.6em; position: relative; }
+  ul.dots li::before { content: ""; position: absolute; left: .1em; top: .72em; width: .9em; height: 1px; background: var(--teal); }
+  .note-sm { font-size: clamp(12px, 1.2vw, 15px); color: var(--soft); margin-top: 2.4vh; }
+
+  /* cover */
+  [data-layout=cover] { justify-content: center; }
+  [data-layout=cover] h1 span { color: var(--teal-deep); }
+  .hanko { position: absolute; right: 12vw; top: 18vh; width: clamp(64px, 7vw, 96px); aspect-ratio: 1; border: 2px solid var(--shu); color: var(--shu);
+           border-radius: 50%; display: grid; place-items: center; font-family: var(--serif); font-size: clamp(14px, 1.5vw, 20px); line-height: 1.15; text-align: center; transform: rotate(-8deg); }
+  .wave { position: absolute; right: 0; bottom: 0; width: 40vw; height: 28vh; opacity: .9; }
+
+  .cover-lead { font-size: clamp(15px, 1.7vw, 23px) !important; margin-bottom: 2.4vh !important; }
+  ol.chapters { list-style: none; counter-reset: ch; padding: 0; margin: 0 0 1vh; display: flex; flex-wrap: wrap; gap: .6vw; max-width: 52vw; position: relative; z-index: 1; }
+  ol.chapters li { counter-increment: ch; font-size: clamp(12px, 1.25vw, 16px); padding: .3em .8em; border: 1px solid var(--mist); background: var(--paper); color: var(--teal-deep); }
+  ol.chapters li::before { content: counter(ch) "　"; color: var(--teal); font-family: var(--serif); }
+
+  /* goals */
+  ol.goals { list-style: none; counter-reset: g; padding: 0; margin: 0; display: grid; gap: 1.6vh; }
+  ol.goals li { counter-increment: g; display: flex; align-items: baseline; gap: 1.2em; font-size: clamp(17px, 2vw, 28px); padding-bottom: 1.4vh; border-bottom: 1px solid var(--line); }
+  ol.goals li::before { content: counter(g, decimal-leading-zero); font-family: var(--serif); color: var(--teal); font-size: .85em; min-width: 2em; }
+
+  /* steps */
+  .steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.2vw; margin-top: 1vh; }
+  .step { background: var(--paper); border-top: 3px solid var(--teal); padding: 2.4vh 1.2vw; min-height: 22vh; box-shadow: 0 1px 0 var(--line); }
+  .step b { display: block; font-family: var(--serif); font-size: clamp(22px, 2.6vw, 36px); color: var(--teal); margin-bottom: 1vh; }
+  .step span { font-size: clamp(14px, 1.5vw, 20px); line-height: 1.6; }
+  .steps.three { grid-template-columns: repeat(3, 1fr); margin-bottom: 1vh; }
+  .steps.three .step { min-height: 0; padding: 1.8vh 1.2vw; }
+  .steps.three .step b { display: inline; font-size: clamp(18px, 2vw, 28px); margin-right: .4em; }
+  .steps.three h3 { display: inline; font-size: clamp(15px, 1.6vw, 21px); color: var(--teal-deep); }
+  .steps.three p { margin: .8vh 0 0; font-size: clamp(13px, 1.4vw, 18px); line-height: 1.6; }
+
+  /* compare / cards */
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 2.4vw; }
+  .card { background: var(--paper); padding: 3vh 2vw; border: 1px solid var(--line); }
+  .card h3 { font-size: clamp(18px, 2.1vw, 28px); margin-bottom: 1.2vh; color: var(--teal-deep); }
+  .card p, .card li { font-size: clamp(14px, 1.6vw, 21px); line-height: 1.7; color: var(--ink); margin: 0; }
+  .card.pale { background: var(--teal-pale); border-color: var(--mist); }
+  .formula { display: inline-block; margin-top: 3vh; padding: 1.4vh 1.6vw; border: 1px solid var(--teal); font-family: var(--serif); font-size: clamp(16px, 2vw, 28px); color: var(--teal-deep); background: var(--paper); }
+  .caution { margin-top: 2.6vh; padding: 1.4vh 1.4vw; border-left: 3px solid var(--teal); background: var(--teal-pale); font-size: clamp(14px, 1.6vw, 21px); }
+
+  /* quote-screen：虛構報價卡 */
+  .qs-wrap { display: grid; grid-template-columns: 1.1fr 1fr; gap: 3vw; align-items: center; }
+  .quote { background: var(--paper); border: 1px solid var(--line); padding: 2.6vh 2vw; font-variant-numeric: tabular-nums; }
+  .quote .qhead { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: 1.2vh; margin-bottom: 1.6vh; }
+  .quote .qname { font-family: var(--serif); font-size: clamp(16px, 1.8vw, 24px); }
+  .quote .qtag { font-size: 12px; color: var(--soft); border: 1px solid var(--line); padding: 1px 8px; }
+  .quote .qprice { font-size: clamp(40px, 5vw, 68px); color: var(--up); font-weight: 600; line-height: 1; }
+  .quote .qchg { color: var(--up); font-size: clamp(16px, 1.8vw, 24px); margin-left: .6em; }
+  .quote dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2vh 1vw; margin: 2vh 0 0; }
+  .quote dt { font-size: clamp(11px, 1.1vw, 14px); color: var(--soft); }
+  .quote dd { margin: 0; font-size: clamp(16px, 1.8vw, 24px); }
+  .up { color: var(--up); } .down { color: var(--down); }
+
+  /* K 線圖 */
+  .kline { display: flex; gap: 3vw; align-items: center; }
+  .kline svg { width: clamp(120px, 14vw, 200px); height: auto; flex: none; }
+
+  /* timeline */
+  .timeline { position: relative; height: 12vh; margin: 2vh 0 3vh; }
+  .timeline .bar { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--line); }
+  .timeline .seg { position: absolute; top: calc(50% - 5px); height: 10px; background: var(--teal); }
+  .timeline .seg.light { background: var(--mist); }
+  .timeline .tick { position: absolute; top: 0; transform: translateX(-50%); font-size: clamp(11px, 1.2vw, 15px); color: var(--soft); text-align: center; }
+  .timeline .tick.b { top: auto; bottom: 0; }
+
+  /* calc */
+  .calc { display: grid; grid-template-columns: 1fr 1.2fr; gap: 3vw; align-items: start; }
+  .calc label { display: block; font-size: clamp(13px, 1.4vw, 18px); color: var(--soft); margin-bottom: .6vh; }
+  .calc input { width: 100%; font: inherit; font-size: clamp(18px, 2vw, 26px); padding: .5em .7em; border: 1px solid var(--line); background: var(--paper); color: var(--ink); margin-bottom: 2vh; }
+  .calc input:focus { outline: 2px solid var(--mist); border-color: var(--teal); }
+  .calc table { width: 100%; border-collapse: collapse; font-size: clamp(15px, 1.7vw, 22px); font-variant-numeric: tabular-nums; }
+  .calc td { padding: 1.1vh .6vw; border-bottom: 1px solid var(--line); }
+  .calc td:last-child { text-align: right; }
+  .calc tr.total td { color: var(--teal-deep); font-weight: 700; border-bottom: 2px solid var(--teal); }
+
+  /* quiz */
+  .quiz { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.6vw; }
+  .q { background: var(--paper); border: 1px solid var(--line); padding: 2.4vh 1.4vw; }
+  .q p.qt { font-size: clamp(15px, 1.6vw, 21px); line-height: 1.6; margin: 0 0 1.6vh; font-weight: 600; }
+  .q button { display: block; width: 100%; text-align: left; font: inherit; font-size: clamp(13px, 1.4vw, 18px); padding: .6em .8em; margin-bottom: .8vh; background: var(--bg); border: 1px solid var(--line); color: var(--ink); cursor: pointer; }
+  .q button:hover { border-color: var(--teal); }
+  .q button.ok { border-color: var(--teal); background: var(--teal-pale); }
+  .q button.ng { border-color: var(--shu); color: var(--shu); }
+  .q .exp { font-size: clamp(12px, 1.3vw, 16px); color: var(--soft); margin-top: 1vh; min-height: 2.6em; line-height: 1.6; }
+
+  /* 五題版小測驗：較緊湊 */
+  [data-layout=quiz] { justify-content: flex-start; padding-top: 7vh; }
+  .quiz5 { gap: 1.2vw; }
+  .quiz5 .q { padding: 1.4vh 1vw; }
+  .quiz5 .q p.qt { font-size: clamp(13px, 1.3vw, 17px); margin-bottom: 1vh; }
+  .quiz5 .q button { font-size: clamp(12px, 1.2vw, 15px); padding: .35em .7em; margin-bottom: .5vh; }
+  .quiz5 .q .exp { min-height: 0; margin-top: .4vh; font-size: clamp(11px, 1.1vw, 14px); }
+  .quiz5 .q .exp:empty { display: none; }
+
+  /* recap */
+  .recap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2vw; }
+  .recap div { border-top: 1px solid var(--teal); padding-top: 2vh; }
+  .recap b { font-family: var(--serif); font-size: clamp(40px, 5vw, 72px); color: var(--teal); display: block; line-height: 1; margin-bottom: 1.4vh; font-weight: 500; }
+  .recap span { font-size: clamp(16px, 1.9vw, 25px); line-height: 1.6; }
+
+  /* ending */
+  [data-layout=ending] .src { font-size: clamp(13px, 1.4vw, 17px); color: var(--soft); line-height: 1.9; }
+  [data-layout=ending] a { color: var(--teal-deep); text-underline-offset: 3px; }
+  .disclaimer { display: inline-block; margin-bottom: 3vh; padding: 1vh 1.4vw; border: 1px solid var(--teal); color: var(--teal-deep); font-family: var(--serif); font-size: clamp(16px, 1.9vw, 25px); }
+
+
+  /* 動手算：看答案 */
+  .try { margin-top: 2.4vh; display: flex; flex-wrap: wrap; gap: 1vw; align-items: flex-start; }
+  .try .qbox { background: var(--paper); border: 1px dashed var(--teal); padding: 1.4vh 1.2vw; min-width: 14em; }
+  .try .qbox p { margin: 0 0 .8vh; font-size: clamp(14px, 1.5vw, 19px); }
+  .try button, .toggle button, .t2 button { font: inherit; font-size: clamp(13px, 1.4vw, 17px); padding: .45em 1em; border: 1px solid var(--teal); background: var(--paper); color: var(--teal-deep); cursor: pointer; }
+  .try button:hover, .toggle button:hover, .t2 button:hover, .toggle button.on, .t2 button.on { background: var(--teal); color: #fff; }
+  .try .hint { font-size: clamp(11px, 1.1vw, 14px) !important; color: var(--soft); }
+  .try .ans { display: none; margin-top: .8vh; color: var(--teal-deep); font-weight: 700; font-size: clamp(14px, 1.5vw, 19px); }
+  .try .qbox.open .ans { display: block; }
+  .tag-b { display: inline-block; font-size: .75em; border: 1px solid var(--soft); color: var(--soft); padding: 0 .5em; margin-left: .4em; vertical-align: middle; }
+
+  /* 五檔表 */
+  table.book { border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: clamp(15px, 1.8vw, 23px); background: var(--paper); }
+  table.book th { font-weight: 500; font-size: .7em; color: var(--soft); padding: .6em 1.2em; border-bottom: 1px solid var(--line); }
+  table.book td { padding: .55em 1.2em; text-align: center; border-bottom: 1px solid var(--line); }
+  table.book td.bid { color: var(--down); } table.book td.ask { color: var(--up); }
+  table.book td.mid { border-left: 1px solid var(--line); }
+
+  /* IOC/FOK、T+2 */
+  .toggle, .t2 { display: flex; gap: .8vw; flex-wrap: wrap; align-items: center; margin-top: 1.6vh; }
+  .result { margin-top: 1.4vh; padding: 1.2vh 1.2vw; background: var(--teal-pale); border-left: 3px solid var(--teal); font-size: clamp(14px, 1.6vw, 20px); min-height: 2.8em; }
+  .week { display: grid; grid-template-columns: repeat(9, 1fr); gap: .5vw; margin-top: 2vh; max-width: 46em; }
+  .week div { border: 1px solid var(--line); background: var(--paper); text-align: center; padding: 1.2vh 0; font-size: clamp(13px, 1.4vw, 18px); }
+  .week div.off { color: var(--soft); background: var(--bg); }
+  .week div.t0 { border-color: var(--teal); color: var(--teal-deep); font-weight: 700; }
+  .week div.pay { background: var(--teal); color: #fff; font-weight: 700; }
+  .week small { display: block; font-size: .7em; }
+
+  /* 複利、預備金試算 */
+  .calc-c table, .calc-f table { width: 100%; }
+  .bars { display: flex; gap: 2vw; align-items: flex-end; height: 16vh; margin-top: 5vh; }
+  .bars div { flex: 1; background: var(--mist); position: relative; transition: height .3s; }
+  .bars div.c { background: var(--teal); }
+  .bars span { position: absolute; top: -1.6em; left: 0; right: 0; text-align: center; font-size: clamp(11px, 1.2vw, 14px); color: var(--soft); }
+  .bars em { position: absolute; bottom: -1.7em; left: 0; right: 0; text-align: center; font-style: normal; font-size: clamp(11px, 1.2vw, 14px); color: var(--soft); }
+
+  /* chrome */
+  .progress { position: fixed; left: 0; bottom: 0; height: 2px; background: var(--teal); transition: width .45s; z-index: 5; }
+  .pageno { position: fixed; right: 4vw; top: 4.5vh; font-family: var(--serif); font-size: 14px; color: var(--soft); letter-spacing: .1em; z-index: 5; }
+  .brand { position: fixed; right: 4vw; bottom: 3.6vh; font-size: 12px; color: var(--soft); letter-spacing: .3em; z-index: 5; }
+  .notes { display: none; position: fixed; left: 50%; bottom: 7vh; transform: translateX(-50%); width: min(820px, 90vw); background: rgba(36,82,79,.95); color: #fff; padding: 14px 18px; font-size: 15px; line-height: 1.7; z-index: 6; }
+  body.show-notes .slide.active .notes { display: block; }
+
+  /* 模擬下單 .sim */
+  .sim { display: grid; grid-template-columns: 1.15fr 1fr; gap: 2.2vw; font-size: clamp(12px, 1.25vw, 16px); align-items: start; }
+  .srow { display: grid; grid-template-columns: 1.4em 6.2em 1fr; align-items: center; gap: .4em; padding: .7vh 0; border-bottom: 1px dashed var(--line); }
+  .srow .sn { color: var(--teal); font-weight: 700; } .srow > b { font-weight: 500; }
+  .seg { display: flex; flex-wrap: wrap; gap: .3em; align-items: center; }
+  .seg button, .sim .send { font: inherit; padding: .3em .8em; border: 1px solid var(--teal); background: var(--paper); color: var(--teal-deep); cursor: pointer; }
+  .seg button.on { background: var(--teal); color: #fff; }
+  .seg button:disabled { opacity: .35; cursor: not-allowed; }
+  .sim select, .sim input { font: inherit; padding: .25em .4em; border: 1px solid var(--line); background: var(--paper); color: var(--ink); width: 5.5em; }
+  .sim .send { margin-top: 1.4vh; font-weight: 700; padding: .5em 1.6em; background: var(--teal-deep); color: #fff; border-color: var(--teal-deep); }
+  .sim .lockmsg { font-size: .85em; color: var(--soft); margin: .6vh 0 0; min-height: 1.4em; }
+  table.book.mini { font-size: clamp(12px, 1.2vw, 15px); width: 100%; }
+  table.book.mini th { padding: .4em .5em; } table.book.mini td { padding: .28em .5em; }
+  table.book.mini tr.hitA td.ask, table.book.mini tr.hitB td.bid { background: var(--teal-pale); font-weight: 700; }
+  .ticket { margin-top: 1.2vh; border: 1px solid var(--line); border-top: 3px solid var(--teal); background: var(--paper); padding: 1vh 1vw; line-height: 1.65; min-height: 8em; }
+  .ticket .t-sum { color: var(--soft); font-size: .88em; margin-bottom: .3em; }
+  .ticket b { color: var(--teal-deep); } .ticket .err { color: #c8553d; }
+  /* 名詞小卡：逐頁稿「術語」欄，術語第一次出現的那一頁才有 */
+  .terms { margin: 2.2vh 0 0; padding-top: 1.2vh; border-top: 1px dashed var(--line); display: flex; flex-wrap: wrap; gap: .5vh 1.8vw; font-size: clamp(11px, 1.15vw, 14px); line-height: 1.5; color: var(--soft); }
+  .terms div { display: flex; gap: .5em; }
+  .terms dt { color: var(--teal-deep); font-weight: 700; white-space: nowrap; }
+  .terms dt::before { content: "名詞｜"; font-weight: 400; color: var(--soft); }
+  .terms dd { margin: 0; }
+  .remind { margin-top: 2.4vh; padding: 1.4vh 1.4vw; border: 1px solid var(--teal); background: var(--paper); font-size: clamp(14px, 1.6vw, 21px); }
+  .remind b { color: var(--teal-deep); }
+  @media (max-width: 760px) {
+    .slide { padding: 7vh 7vw 10vh 12vw; overflow-y: auto; justify-content: flex-start; }
+    .steps, .steps.three { grid-template-columns: 1fr; } .step { min-height: 0; padding: 1.4vh 3vw; }
+    .sim { grid-template-columns: 1fr; }
+    .pair, .qs-wrap, .calc, .quiz, .recap { grid-template-columns: 1fr; }
+    .kline { flex-direction: column; align-items: flex-start; }
+    .hanko { right: 8vw; top: auto; bottom: 26vh; } .wave { width: 80vw; height: 20vh; }
+  }
+  @media print {
+    @page { size: 1280px 720px; margin: 0; }
+    html, body { overflow: visible; height: auto; }
+    .slide { position: relative; opacity: 1; visibility: visible; transform: none; width: 1280px; height: 720px; break-after: page; }
+    .progress, .pageno, .notes { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+<main>
+  <!-- 依據：slides/2026-11-22-invest-order-and-quotes.md 第 2 版（每個 section 對應逐頁稿一頁） -->
+  <section class="slide" data-layout="cover" data-chapter="第一課" data-source="wiki/overview.md">
+    <span class="hanko">新手<br>村</span>
+    <p class="kicker">理財新手村｜教學簡報｜約 15 分鐘</p>
+    <h1>新手投資的<br><span>第一課</span></h1>
+    <p class="lead cover-lead">給完全沒有投資經驗的你：<br>錢為什麼要投資、開始前要準備什麼、<br>看盤和下單時畫面上的數字是什麼意思。</p>
+    <ol class="chapters">
+      <li>為什麼要投資</li><li>投資前的準備</li><li>看懂報價</li><li>大盤</li><li>下單</li><li>交割</li><li>看懂不等於預測</li>
+    </ol>
+    <p class="note-sm">每一章都有一題可以自己算。</p>
+    <svg class="wave" viewBox="0 0 520 190" preserveAspectRatio="xMaxYMax slice" aria-hidden="true"><path d="M-28 40 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M-20 40 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M-12 40 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M32 40 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M40 40 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M48 40 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M92 40 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M100 40 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M108 40 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M152 40 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M160 40 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M168 40 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M212 40 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M220 40 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M228 40 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M272 40 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M280 40 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M288 40 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M332 40 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M340 40 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M348 40 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M392 40 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M400 40 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M408 40 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M452 40 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M460 40 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M468 40 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M2 70 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M10 70 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M18 70 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M62 70 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M70 70 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M78 70 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M122 70 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M130 70 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M138 70 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M182 70 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M190 70 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M198 70 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M242 70 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M250 70 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M258 70 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M302 70 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M310 70 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M318 70 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M362 70 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M370 70 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M378 70 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M422 70 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M430 70 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M438 70 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M482 70 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M490 70 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M498 70 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M-28 100 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M-20 100 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M-12 100 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M32 100 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M40 100 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M48 100 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M92 100 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M100 100 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M108 100 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M152 100 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M160 100 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M168 100 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M212 100 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M220 100 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M228 100 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M272 100 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M280 100 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M288 100 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M332 100 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M340 100 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M348 100 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M392 100 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M400 100 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M408 100 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M452 100 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M460 100 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M468 100 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M2 130 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M10 130 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M18 130 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M62 130 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M70 130 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M78 130 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M122 130 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M130 130 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M138 130 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M182 130 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M190 130 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M198 130 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M242 130 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M250 130 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M258 130 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M302 130 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M310 130 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M318 130 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M362 130 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M370 130 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M378 130 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M422 130 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M430 130 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M438 130 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M482 130 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M490 130 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M498 130 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M-28 160 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M-20 160 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M-12 160 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M32 160 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M40 160 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M48 160 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M92 160 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M100 160 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M108 160 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M152 160 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M160 160 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M168 160 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M212 160 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M220 160 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M228 160 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M272 160 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M280 160 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M288 160 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M332 160 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M340 160 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M348 160 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M392 160 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M400 160 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M408 160 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/><path d="M452 160 a28 28 0 0 1 56 0" fill="none" stroke="#3f7d78" stroke-opacity="0.55" stroke-width="1.2"/><path d="M460 160 a20 20 0 0 1 40 0" fill="none" stroke="#3f7d78" stroke-opacity="0.4" stroke-width="1.2"/><path d="M468 160 a12 12 0 0 1 24 0" fill="none" stroke="#3f7d78" stroke-opacity="0.3" stroke-width="1.2"/></svg>
+    <aside class="notes">今天 15 分鐘，從「為什麼要投資」一路講到「下單後錢什麼時候扣」，每一章都有一題可以自己算。</aside>
+  </section>
+  <section class="slide" data-layout="goals" data-chapter="學習目標" data-source="notes:goals">
+    <p class="kicker">學習目標</p>
+    <h2>看完這份簡報，你能動手……</h2>
+    <ol class="goals">
+      <li>算出自己的緊急預備金目標</li>
+      <li>用複利公式算出 N 年後的金額</li>
+      <li>從報價算出漲跌幅，讀懂五檔</li>
+      <li>說出「大盤漲 200 點」的意思</li>
+      <li>選限價或市價，算出交易成本</li>
+      <li>推算 T+2 扣款日</li>
+      <li>分辨「看懂」與「預測」</li>
+    </ol>
+    <aside class="notes">最後有五題小測驗。</aside>
+  </section>
+  <section class="slide" data-layout="point" data-chapter="情境" data-source="wiki/paths/beginner-invest-order.md">
+    <p class="kicker">情境</p>
+    <h2>領到第一份薪水，<br>可以馬上買股票嗎？</h2>
+    <p class="lead">先想三件事。</p>
+    <ul class="dots">
+      <li>錢放著，會不會變少？</li>
+      <li>意外發生時，有沒有錢可以用？</li>
+      <li>下單之後，錢什麼時候被扣？</li>
+    </ul>
+    <aside class="notes">這三個問題，就是今天的主線。</aside>
+  </section>
+  <section class="slide" data-layout="point" data-chapter="一・為什麼" data-source="wiki/concepts/inflation.md">
+    <p class="kicker">一、為什麼要投資</p>
+    <h2>錢放著，會變「薄」</h2>
+    <p class="lead">通膨：物價上漲，同樣的錢能買的東西變少。</p>
+    <div class="pair">
+      <div class="card"><h3>今年</h3><p>一碗麵 100 元<br>手上有 100 元</p></div>
+      <div class="card pale"><h3>一年後</h3><p>一碗麵 105 元<br>100 元存一年只變成 101 元</p></div>
+    </div>
+    <p><span class="formula">101 ÷ 105 ≈ 0.962，購買力約少 3.8%</span></p>
+    <p class="note-sm">來源文章的例子，數字為假設。</p>
+    <dl class="terms"><div><dt>通膨</dt><dd>物價持續上漲，同樣的錢能買的東西變少</dd></div><div><dt>購買力</dt><dd>一筆錢能買到多少東西</dd></div></dl>
+    <aside class="notes">這是來源文章的例子，數字是假設的，用來說明算法。</aside>
+  </section>
+  <section class="slide" data-layout="calc-compound" data-chapter="一・為什麼" data-source="wiki/concepts/compound-interest.md">
+    <p class="kicker">一、為什麼要投資｜動手算</p>
+    <h2>複利：報酬再放回去，像滾雪球</h2>
+    <p class="lead">未來金額 ＝ 本金 ×（1＋報酬率）<sup>年數</sup></p>
+    <div class="calc calc-c">
+      <div>
+        <label for="cp">本金（元）</label><input id="cp" name="p" type="number" value="100000" min="0" step="1000">
+        <label for="cr">每年報酬率（%，假設）</label><input id="cr" name="r" type="number" value="3" min="0" step="0.5">
+        <label for="cn">年數</label><input id="cn" name="n" type="number" value="10" min="0" step="1">
+      </div>
+      <div>
+        <table>
+          <tr><td>複利（報酬再投入）</td><td data-o="comp"></td></tr>
+          <tr><td>每年把報酬領出</td><td data-o="simple"></td></tr>
+          <tr class="total"><td>差距</td><td data-o="gap"></td></tr>
+        </table>
+        <div class="bars"><div><span></span><em>本金</em></div><div><span></span><em>每年領出</em></div><div class="c"><span></span><em>複利</em></div></div>
+      </div>
+    </div>
+    <p class="note-sm">報酬率是假設的；實際投資每年報酬不同，也可能虧損。</p>
+    <dl class="terms"><div><dt>複利</dt><dd>把賺到的報酬再放回本金，下一期用更大的本金繼續滾</dd></div><div><dt>報酬率</dt><dd>賺的錢占本金的比例</dd></div></dl>
+    <aside class="notes">預設 10 萬元、3%、10 年約 134,392 元。可以把年數改成 30 年看看差距。</aside>
+  </section>
+  <section class="slide" data-layout="steps" data-chapter="二・準備" data-source="wiki/paths/beginner-invest-order.md">
+    <p class="kicker">二、投資前的準備</p>
+    <h2>投資前的五個步驟</h2>
+    <p class="lead">預備金和還債，排在投資之前。</p>
+    <div class="steps">
+      <div class="step"><b>01</b><span>存緊急預備金</span></div>
+      <div class="step"><b>02</b><span>付固定支出、還高利債務</span></div>
+      <div class="step"><b>03</b><span>檢視保險</span></div>
+      <div class="step"><b>04</b><span>了解風險屬性（能承受多大的波動）、訂目標</span></div>
+      <div class="step"><b>05</b><span>開始學市場基本知識</span></div>
+    </div>
+    <dl class="terms"><div><dt>緊急預備金</dt><dd>只在意外時才動用的一筆錢</dd></div><div><dt>風險屬性</dt><dd>你能承受資產上上下下到什麼程度</dd></div></dl>
+    <aside class="notes">不同來源步驟切法略有不同，但都同意預備金和還債要先做。</aside>
+  </section>
+  <section class="slide" data-layout="calc-fund" data-chapter="二・準備" data-source="wiki/concepts/emergency-fund.md">
+    <p class="kicker">二、投資前的準備｜動手算</p>
+    <h2>緊急預備金是投資的安全帽</h2>
+    <p class="lead">急用時，<strong>不必被迫在下跌時賣掉投資</strong>。</p>
+    <div class="calc calc-f">
+      <div>
+        <label for="fs">每月薪資（元）</label><input id="fs" name="salary" type="number" value="30000" min="0" step="1000">
+        <label for="fm">想準備幾個月</label><input id="fm" name="months" type="number" value="3" min="0" step="1">
+      </div>
+      <div>
+        <table><tr class="total"><td>預備金目標</td><td data-o="fund"></td></tr></table>
+        <ul class="dots" style="margin-top:3vh">
+          <li>有作者建議 3～6 個月（建議，不是規定）</li>
+          <li>放在方便提款、平常少用的帳戶</li>
+        </ul>
+      </div>
+    </div>
+    <aside class="notes">可以先從 1 個月開始存。</aside>
+  </section>
+  <section class="slide" data-layout="compare" data-chapter="二・準備" data-source="wiki/concepts/debt-first.md">
+    <p class="kicker">二、投資前的準備</p>
+    <h2>為什麼先還債？</h2>
+    <p class="lead">債的利息確定要付，投資報酬卻不一定。</p>
+    <div class="pair">
+      <div class="card pale"><h3>債務利息</h3><p>確定要付，每個月都在累積。卡債循環利息會越滾越大。</p></div>
+      <div class="card"><h3>投資報酬</h3><p>不確定，也可能虧損。</p></div>
+    </div>
+    <dl class="terms"><div><dt>循環利息</dt><dd>信用卡沒繳清，剩下的錢被收的利息</dd></div></dl>
+    <aside class="notes">這裡的債指卡債、小額信貸、親友借款，不含房貸。</aside>
+  </section>
+  <section class="slide" data-layout="quote-screen" data-chapter="三・看懂" data-source="wiki/concepts/quote-screen.md">
+    <p class="kicker">三、看懂報價畫面｜動手算</p>
+    <h2>打開看盤畫面，先看這幾個數字</h2>
+    <div class="qs-wrap">
+      <div class="quote" aria-label="虛構的範例報價">
+        <div class="qhead"><span class="qname">範例股 0000</span><span class="qtag">虛構範例</span></div>
+        <div><span class="qprice">102</span></div>
+        <dl>
+          <div><dt>昨收</dt><dd>100</dd></div><div><dt>開盤</dt><dd class="up">101</dd></div><div><dt>最高</dt><dd class="up">103</dd></div>
+          <div><dt>最低</dt><dd class="down">99</dd></div><div><dt>收盤</dt><dd class="up">102</dd></div><div><dt>成交量</dt><dd>5,000 張</dd></div>
+        </dl>
+      </div>
+      <div>
+        <ul class="dots">
+          <li>漲跌要跟<strong>昨天收盤</strong>比</li>
+          <li>成交量多以「張」計，1 張 ＝ 1,000 股</li>
+        </ul>
+        <div class="try">
+          <div class="qbox"><p>漲跌、漲幅是多少？</p><p class="hint">先自己算，再按「看答案」。</p><button type="button">看答案</button><p class="ans">102 − 100 ＝ ＋2 元；2 ÷ 100 ＝ 2%</p></div>
+          <div class="qbox"><p>5,000 張是幾股？</p><p class="hint">先自己算，再按「看答案」。</p><button type="button">看答案</button><p class="ans">5,000 × 1,000 ＝ 500 萬股</p></div>
+        </div>
+      </div>
+    </div>
+    <dl class="terms"><div><dt>成交量</dt><dd>一段時間內成交的總數量，台股個股多以「張」計</dd></div><div><dt>昨收</dt><dd>前一個交易日的收盤價，用來算今天的漲跌</dd></div></dl>
+    <aside class="notes">台股用紅色表示上漲、綠色表示下跌，只是方向。</aside>
+  </section>
+  <section class="slide" data-layout="compare" data-chapter="三・看懂" data-source="wiki/concepts/k-line.md">
+    <p class="kicker">三、看懂報價畫面</p>
+    <h2>紅 K 不一定代表上漲</h2>
+    <p class="lead">K 線只比較「今天的收盤」和「今天的開盤」。</p>
+    <div class="kline">
+      <svg viewBox="0 0 150 220" role="img" aria-label="K 線示意">
+  <line x1="50" y1="20" x2="50" y2="200" stroke="#c8453c" stroke-width="2"/>
+  <rect x="30" y="60" width="40" height="90" fill="#c8453c"/>
+  <g font-size="12" fill="#6b7775"><text x="80" y="24">最高</text><text x="80" y="64">收盤</text><text x="80" y="154">開盤</text><text x="80" y="204">最低</text></g>
+</svg>
+      <svg viewBox="0 0 150 220" role="img" aria-label="K 線示意">
+  <line x1="50" y1="20" x2="50" y2="200" stroke="#2f7d5a" stroke-width="2"/>
+  <rect x="30" y="60" width="40" height="90" fill="#2f7d5a"/>
+  <g font-size="12" fill="#6b7775"><text x="80" y="24">最高</text><text x="80" y="64">開盤</text><text x="80" y="154">收盤</text><text x="80" y="204">最低</text></g>
+</svg>
+      <ul class="dots">
+        <li>收盤比開盤高：<span class="up">紅 K</span></li>
+        <li>收盤比開盤低：<span class="down">綠 K</span></li>
+        <li>例：昨收 30、今開 29、收 29.5 → 紅 K，<strong>但比昨天低</strong></li>
+      </ul>
+    </div>
+    <dl class="terms"><div><dt>紅 K</dt><dd>收盤價比開盤價高的 K 線</dd></div><div><dt>綠 K</dt><dd>收盤價比開盤價低的 K 線</dd></div></dl>
+    <aside class="notes">漲跌要和昨天收盤比，K 線的顏色只看今天的開盤和收盤。</aside>
+  </section>
+  <section class="slide" data-layout="orderbook" data-chapter="三・看懂" data-source="wiki/concepts/order-book.md">
+    <p class="kicker">三、看懂報價畫面｜動手算</p>
+    <h2>五檔報價：還在排隊的買單和賣單</h2>
+    <p class="lead">左邊是想買的人，右邊是想賣的人。</p>
+    <div class="pair">
+      <div>
+        <table class="book" aria-label="虛構的五檔報價">
+          <tr><th>委買張數</th><th>委買價</th><th class="mid">委賣價</th><th>委賣張數</th></tr>
+          <tr><td>30</td><td class="bid">99.9</td><td class="ask mid">100.0</td><td>10</td></tr>
+          <tr><td>25</td><td class="bid">99.8</td><td class="ask mid">100.5</td><td>20</td></tr>
+        </table>
+        <p class="note-sm">虛構範例，只列前兩檔。</p>
+      </div>
+      <div>
+        <ul class="dots">
+          <li>委買：出價越高越先成交</li>
+          <li>委賣：開價越低越先成交</li>
+          <li>同一個價格，先排隊的先成交</li>
+          <li>你要買，就跟右邊排隊的委賣成交（他們是你的對手方）</li>
+        </ul>
+        <div class="try"><div class="qbox"><p>用市價買 15 張，會用什麼價格成交？</p><p class="hint">先自己算，再按「看答案」。</p><button type="button">看答案</button><p class="ans">先買走最便宜的 100.0 元 10 張，不夠再買 100.5 元 5 張</p></div></div>
+      </div>
+    </div>
+    <dl class="terms"><div><dt>五檔</dt><dd>看盤畫面上還在排隊、沒成交的買單和賣單，各列最好的五個價格</dd></div><div><dt>委買</dt><dd>想買的人出的價格和張數</dd></div><div><dt>委賣</dt><dd>想賣的人開的價格和張數</dd></div><div><dt>對手方</dt><dd>跟你交易的另一邊：你要買，對手方就是賣方</dd></div><div><dt>市價</dt><dd>不指定價格，直接跟對手方正在排隊的價格成交</dd></div></dl>
+    <aside class="notes">五檔是還在排隊、沒有成交的單。</aside>
+  </section>
+  <section class="slide" data-layout="point" data-chapter="四・大盤" data-source="wiki/concepts/market-index.md">
+    <p class="kicker">四、大盤</p>
+    <h2>「大盤漲 200 點」是什麼意思？</h2>
+    <p class="lead">大盤是把所有上市股票合起來算的一個數字。</p>
+    <ul class="dots">
+      <li>大盤＝發行量加權股價指數，民國 55 年設為 100 點</li>
+      <li>股本越大的公司影響越大；半導體業占 55.16%（2026-10-30 資料）</li>
+      <li>所以大盤漲跌，很大部分是大型半導體股在漲跌</li>
+    </ul>
+    <div class="pair">
+      <p class="remind"><b>像全班的總分</b><br>每個人的分數都算進去，但大個子（股本大的公司）分數占比比較重。</p>
+      <div class="try"><div class="qbox"><p>20,000 點漲到 20,200 點，漲幅是多少？</p><p class="hint">先自己算，再按「看答案」。</p><button type="button">看答案</button><p class="ans">200 ÷ 20,000 ＝ 1%</p></div></div>
+    </div>
+    <dl class="terms"><div><dt>大盤</dt><dd>發行量加權股價指數，代表上市股票整體的漲跌</dd></div><div><dt>股本</dt><dd>公司發行的股票規模；股本越大，對大盤影響越大</dd></div></dl>
+    <aside class="notes">像全班總分，大個子的分數占比比較重。</aside>
+  </section>
+  <section class="slide" data-layout="list" data-chapter="四・大盤" data-source="wiki/concepts/market-index.md">
+    <p class="kicker">四、大盤｜動手判斷</p>
+    <h2>大盤漲跌，會影響我什麼？</h2>
+    <p class="lead">大盤是整個市場的溫度計，會從三個地方碰到你。</p>
+    <div class="steps three">
+      <div class="step"><b>1</b><h3>大事件，全市場一起動</h3><p>2026 年美伊開戰後到 3/13，大盤跌約 6%<span class="tag-b">B 級報導</span></p></div>
+      <div class="step"><b>2</b><h3>市場情緒會帶著你走</h3><p>大盤大漲大跌時，你的股票也可能跟著一起漲跌</p></div>
+      <div class="step"><b>3</b><h3>買 ETF 就直接連動</h3><p>報酬跟著它追蹤的指數走；不是每檔都追蹤大盤</p></div>
+    </div>
+    <div class="try"><div class="qbox"><p>A 天：大盤跌 2%，你的股票跌 2%。B 天：大盤漲 1%，你的股票跌 5%。哪一天比較可能是公司自己的問題？</p><p class="hint">先自己算，再按「看答案」。</p><button type="button">看答案</button><p class="ans">B 天：大盤在漲，你的股票卻大跌，比較可能是公司本身的原因；A 天比較像整個市場一起跌（數字為假設）</p></div></div>
+    <dl class="terms"><div><dt>市場情緒</dt><dd>投資人整體的樂觀或恐慌，會讓很多股票一起漲跌</dd></div><div><dt>ETF</dt><dd>在交易所像股票一樣買賣的基金，報酬跟著它追蹤的指數走</dd></div></dl>
+    <aside class="notes">大盤由大型股主導，大盤漲的那天，小公司的股票可能沒漲。判斷題數字為假設。</aside>
+  </section>
+  <section class="slide" data-layout="list" data-chapter="五・下單" data-source="wiki/rules/trading-hours.md wiki/rules/price-limit.md wiki/rules/trading-unit.md">
+    <p class="kicker">五、下單</p>
+    <h2>什麼時候可以買？一次買多少？</h2>
+    <div class="timeline" aria-hidden="true">
+      <div class="bar"></div>
+      <div class="seg light" style="left:0%;width:10%"></div>
+      <div class="seg" style="left:10%;width:55%"></div>
+      <div class="seg light" style="left:67%;width:13%"></div>
+      <span class="tick" style="left:0%">8:30</span><span class="tick" style="left:10%">9:00</span><span class="tick" style="left:65%">13:30</span><span class="tick" style="left:80%">14:30</span>
+      <span class="tick b" style="left:5%">先下單排隊</span><span class="tick b" style="left:37%">整股、盤中零股成交</span><span class="tick b" style="left:74%">盤後零股 13:40～</span>
+    </div>
+    <ul class="dots">
+      <li>一天最多漲跌 10%（漲停、跌停）</li>
+      <li>1 張 ＝ 1,000 股；零股是 1～999 股</li>
+      <li>新聞報導 12/7 起零股改 9:00 開盤，以證交所公告為準</li>
+    </ul>
+    <p class="caution">零股和整股時段重疊，下錯單位可能差 1,000 倍。</p>
+    <p class="note-sm">以上為 2026 年規定。</p>
+    <dl class="terms"><div><dt>漲停</dt><dd>一天內漲到上限（開盤競價基準＋10%）</dd></div><div><dt>跌停</dt><dd>一天內跌到下限（開盤競價基準－10%）</dd></div><div><dt>零股</dt><dd>1～999 股的交易，不到一張</dd></div><div><dt>盤後零股</dt><dd>收盤後 13:40～14:30 另外進行的零股交易</dd></div></dl>
+    <aside class="notes">8:30 可以先下單排隊，9:00 到 13:30 才真正成交。</aside>
+  </section>
+  <section class="slide" data-layout="compare" data-chapter="五・下單" data-source="wiki/rules/order-types.md">
+    <p class="kicker">五、下單｜第一步</p>
+    <h2>下單第一步：價格怎麼定？</h2>
+    <p class="lead">限價控制價格，市價比較快成交。</p>
+    <div class="pair">
+      <div class="card"><h3>限價</h3><p>自己指定價格，例如「最多 100 元買」。<br>能控制價格，但可能買不到。</p></div>
+      <div class="card pale"><h3>市價</h3><p>不指定價格，直接跟對手方正在排隊的價格成交。<br>比較快，但價格不由自己決定。</p></div>
+    </div>
+    <p class="caution">同時排隊時，市價單優先於限價單。</p>
+    <p class="note-sm">2026 年規定。本簡報只說明差別，不建議要選哪一種。</p>
+    <dl class="terms"><div><dt>限價</dt><dd>自己指定價格下單</dd></div></dl>
+    <aside class="notes">本簡報只說明差別，不建議要選哪一種。</aside>
+  </section>
+  <section class="slide" data-layout="order-types" data-chapter="五・下單" data-source="wiki/rules/order-types.md">
+    <p class="kicker">五、下單｜第二步・動手判斷</p>
+    <h2>下單第二步：這張單要等多久？</h2>
+    <p class="lead">除了價格，還要選「沒成交時怎麼辦」。</p>
+    <ul class="dots">
+      <li><b>ROD</b>（當日有效）：今天收盤前都有效，沒成交就繼續排隊</li>
+      <li><b>IOC</b>（立即成交否則取消）：能成交多少算多少，剩下立刻取消</li>
+      <li><b>FOK</b>（全部成交否則取消）：不能一次全部成交，就整筆取消</li>
+    </ul>
+    <p class="lead" style="margin:1.6vh 0 0">情境：你要買 50 張，賣方只有 30 張。</p>
+    <div class="toggle">
+      <button type="button" data-r="ROD：買到 30 張，剩下 20 張繼續排隊到收盤。">ROD</button>
+      <button type="button" data-r="IOC：買到 30 張，剩下 20 張取消。">IOC</button>
+      <button type="button" data-r="FOK：沒辦法一次買滿 50 張，整筆取消，一張都沒買到。">FOK</button>
+    </div>
+    <p class="result">點選上面的按鈕，看看結果。</p>
+    <p class="note-sm">開盤、收盤時段只能用限價＋ROD（2026 年規定）。</p>
+    <dl class="terms"><div><dt>ROD</dt><dd>當日有效：今天收盤前都有效，沒成交就繼續排隊</dd></div><div><dt>IOC</dt><dd>立即成交否則取消：能成交多少算多少，剩下的取消</dd></div><div><dt>FOK</dt><dd>全部成交否則取消：不能一次全部成交就整筆取消</dd></div></dl>
+    <aside class="notes">價格兩種 × 等多久三種，共 6 種組合。</aside>
+  </section>
+  <section class="slide" data-layout="calc" data-chapter="五・下單" data-source="wiki/rules/trading-costs.md">
+    <p class="kicker">五、下單｜動手算</p>
+    <h2>價格沒變，賣掉也會少一點錢</h2>
+    <p class="lead">手續費買賣各一次，賣出再加證交稅。</p>
+    <div class="calc">
+      <div>
+        <label for="c-price">股價（元）</label><input id="c-price" name="price" type="number" value="50" min="0" step="0.05">
+        <label for="c-shares">股數</label><input id="c-shares" name="shares" type="number" value="1000" min="0" step="1">
+        <p class="note-sm">手續費 0.1425%（一般上限）、股票證交稅 0.3%（2026 年規定）。假設不打折、未計最低手續費。</p>
+      </div>
+      <table>
+        <tr><td>成交金額</td><td data-o="amt"></td></tr>
+        <tr><td>買進手續費</td><td data-o="buy"></td></tr>
+        <tr><td>賣出手續費</td><td data-o="sell"></td></tr>
+        <tr><td>證交稅（賣出時）</td><td data-o="tax"></td></tr>
+        <tr class="total"><td>來回成本</td><td data-o="total"></td></tr>
+      </table>
+    </div>
+    <dl class="terms"><div><dt>手續費</dt><dd>付給券商的費用，買和賣各收一次</dd></div><div><dt>證交稅</dt><dd>賣出股票時繳給政府的稅</dd></div></dl>
+    <aside class="notes">預設 50 元買賣 1 張，來回約 292.5 元。</aside>
+  </section>
+  <section class="slide" data-layout="t2" data-chapter="六・交割" data-source="wiki/rules/settlement-t2.md">
+    <p class="kicker">六、交割｜動手推算</p>
+    <h2>買了股票，錢什麼時候扣？</h2>
+    <p class="lead">成交後第 2 個營業日（T+2），上午 10 點前。</p>
+    <ul class="dots">
+      <li>T＝成交日，當天不扣款</li>
+      <li>T+2 上午 10 時前，交割帳戶（開戶時綁定的扣款帳戶）要有錢</li>
+    </ul>
+    <p class="lead" style="margin:2vh 0 0">點選成交日：</p>
+    <div class="t2">
+      <button type="button" data-d="0">週一</button><button type="button" data-d="1">週二</button><button type="button" data-d="2">週三</button><button type="button" data-d="3">週四</button><button type="button" data-d="4">週五</button>
+    </div>
+    <div class="week" aria-hidden="true">
+      <div>週一</div><div>週二</div><div>週三</div><div>週四</div><div>週五</div><div class="off">週六<small>休市</small></div><div class="off">週日<small>休市</small></div><div>下週一</div><div>下週二</div>
+    </div>
+    <p class="result">點選成交日，看看 T+2 是哪一天。</p>
+    <p class="note-sm">不考慮國定假日；遇到休市要再往後延（2026 年規定）。</p>
+    <dl class="terms"><div><dt>營業日</dt><dd>股市有開的日子，週末和休市日不算</dd></div><div><dt>交割帳戶</dt><dd>開戶時綁定、用來扣款和入帳的銀行帳戶</dd></div></dl>
+    <aside class="notes">週末不算營業日；遇到國定假日、颱風休市還要再往後延。</aside>
+  </section>
+  <section class="slide" data-layout="sim" data-chapter="綜合練習" data-source="wiki/rules/order-types.md wiki/concepts/order-book.md wiki/rules/trading-costs.md wiki/rules/settlement-t2.md wiki/rules/trading-unit.md">
+    <p class="kicker">綜合練習｜動手做</p>
+    <h2>自己下一張單試試看</h2>
+    <p class="lead" style="margin-bottom:2vh">照順序填完委託單，按「送出」看會怎樣成交、要付多少、哪天扣款。</p>
+    <div class="sim">
+      <div>
+        <div class="srow" data-k="side"><span class="sn">①</span><b>買或賣</b><div class="seg"><button type="button" data-v="buy">買進</button><button type="button" data-v="sell">賣出</button></div></div>
+        <div class="srow" data-k="unit"><span class="sn">②</span><b>單位</b><div class="seg"><button type="button" data-v="lot">整股（張）</button><button type="button" data-v="odd">零股（股）</button></div></div>
+        <div class="srow" data-k="ptype"><span class="sn">③</span><b>價格</b><div class="seg"><button type="button" data-v="limit">限價</button><select name="price" aria-label="限價價格"><option value="99.5">99.5</option><option value="99.6">99.6</option><option value="99.7">99.7</option><option value="99.8">99.8</option><option value="99.9">99.9</option><option value="100.0">100.0</option><option value="100.5" selected>100.5</option><option value="101.0">101.0</option><option value="101.5">101.5</option><option value="102.0">102.0</option></select><button type="button" data-v="market">市價</button></div></div>
+        <div class="srow"><span class="sn">④</span><b>數量</b><div class="seg"><input name="qty" type="number" value="15" min="1" max="99" step="1" aria-label="數量"><span class="ulabel">張</span></div></div>
+        <div class="srow" data-k="tif"><span class="sn">⑤</span><b>等多久</b><div class="seg"><button type="button" data-v="ROD">ROD</button><button type="button" data-v="IOC">IOC</button><button type="button" data-v="FOK">FOK</button></div></div>
+        <div class="srow"><span class="sn">⑥</span><b>今天是</b><div class="seg"><select name="day" aria-label="成交日"><option value="0">週一</option><option value="1">週二</option><option value="2">週三</option><option value="3" selected>週四</option><option value="4">週五</option></select></div></div>
+        <p class="lockmsg"></p>
+        <button type="button" class="send">送出委託單</button>
+      </div>
+      <div>
+        <table class="book mini" aria-label="虛構範例股 0000 五檔">
+          <tr><th>委買張數</th><th>委買價</th><th class="mid">委賣價</th><th>委賣張數</th></tr>
+          <tr><td>30</td><td class="bid">99.9</td><td class="ask mid">100.0</td><td>10</td></tr><tr><td>25</td><td class="bid">99.8</td><td class="ask mid">100.5</td><td>20</td></tr><tr><td>40</td><td class="bid">99.7</td><td class="ask mid">101.0</td><td>15</td></tr><tr><td>18</td><td class="bid">99.6</td><td class="ask mid">101.5</td><td>30</td></tr><tr><td>50</td><td class="bid">99.5</td><td class="ask mid">102.0</td><td>25</td></tr>
+        </table>
+        <div class="ticket" aria-live="polite"><p class="t-sum">情境：盤中 10:00，你已持有 50 張範例股 0000。</p><p>填好左邊再按「送出委託單」。<br>試試：市價買 15 張；限價 99.9 元用 IOC 買；FOK 買 50 張。</p></div>
+      </div>
+    </div>
+    <p class="note-sm" style="margin-top:1.2vh">虛構五檔。手續費 0.1425%、證交稅 0.3%（2026 年規定），假設不打折、未計最低手續費；不考慮國定假日。</p>
+    <dl class="terms"><div><dt>委託單</dt><dd>你送給券商的買賣指令：買或賣、價格、數量、等多久</dd></div></dl>
+    <aside class="notes">試試看：市價買 15 張、限價 99.9 元用 IOC 買、FOK 買 50 張。</aside>
+  </section>
+  <section class="slide" data-layout="list" data-chapter="六・交割" data-source="wiki/concepts/default-settlement.md">
+    <p class="kicker">六、交割</p>
+    <h2>錢不夠，會發生什麼事？</h2>
+    <p class="lead">違約交割的後果，比想像中嚴重。<span class="tag-b">B 級報導・法規原文待確認</span></p>
+    <ul class="dots">
+      <li>券商凍結帳戶、強制賣出股票</li>
+      <li>違約金最高可達成交金額 7%（例：30 萬 × 7% ＝ 21,000 元）</li>
+      <li>紀錄進聯徵（銀行查詢的信用紀錄）、帳戶可能被註銷，5 年內不能開戶</li>
+      <li>情節重大有刑責</li>
+    </ul>
+    <dl class="terms"><div><dt>違約交割</dt><dd>買了股票卻沒在期限內付錢</dd></div><div><dt>聯徵</dt><dd>銀行會查詢的個人信用紀錄</dd></div></dl>
+    <aside class="notes">以上後果來自新聞報導，法規原文待確認。</aside>
+  </section>
+  <section class="slide" data-layout="list" data-chapter="七・提醒" data-source="wiki/concepts/k-line.md wiki/concepts/order-book.md wiki/concepts/market-index.md wiki/concepts/investment-fraud.md">
+    <p class="kicker">七、看懂不等於預測</p>
+    <h2>新手常見的四個誤解</h2>
+    <div class="pair">
+      <div class="card"><p>❌ 紅 K 就是上漲</p><p>✅ 漲跌要和昨收比</p></div>
+      <div class="card"><p>❌ 成交價就是我能買到的價</p><p>✅ 要看委賣那一側</p></div>
+      <div class="card"><p>❌ 大盤漲，我的股票也漲</p><p>✅ 個股不一定</p></div>
+      <div class="card"><p>❌ 名人推薦比較可靠</p><p>✅ 詐騙常冒用名人</p></div>
+    </div>
+    <p class="note-sm">有疑慮可撥 165 或 02-2737-3434 查證。</p>
+    <aside class="notes">看懂數字，也要看懂它沒說的事。</aside>
+  </section>
+  <section class="slide" data-layout="quiz" data-chapter="小測驗" data-source="slides:p5 slides:p10 slides:p11 slides:p15 slides:p18">
+    <p class="kicker">小測驗</p>
+    <h2>五題，點選答案看解說</h2>
+    <div class="quiz quiz5"><div class="q" data-exp="收盤 29.5 高於開盤 29 是紅 K，但比昨收 30 低。"><p class="qt">Q1　昨收 30、今開 29、收 29.5，今天是？</p><button type="button">紅 K，而且上漲</button><button type="button" data-ok="1">紅 K，但比昨天低</button><button type="button">綠 K，而且下跌</button><p class="exp"></p></div><div class="q" data-exp="先用最低的委賣價 100.0 元成交，10 張足夠。"><p class="qt">Q2　委賣 100.0 元 10 張、100.5 元 20 張，市價買 5 張用什麼價格？</p><button type="button">99.9 元</button><button type="button" data-ok="1">100.0 元</button><button type="button">100.5 元</button><p class="exp"></p></div><div class="q" data-exp="週末不算營業日：週五 T+1、下週一 T+2。"><p class="qt">Q3　週四成交，最晚什麼時候要付款？</p><button type="button">週五上午 10 點前</button><button type="button" data-ok="1">下週一上午 10 點前</button><button type="button">下週二上午 10 點前</button><p class="exp"></p></div><div class="q" data-exp="限價可以指定價格；市價跟對手方正在排隊的價格成交。"><p class="qt">Q4　想控制買進價格，要選？</p><button type="button" data-ok="1">限價</button><button type="button">市價</button><button type="button">FOK 市價</button><p class="exp"></p></div><div class="q" data-exp="100,000 ×（1.03）^10 ≈ 134,392 元（假設報酬率）。"><p class="qt">Q5　10 萬元、每年 3%、複利 10 年，約多少？</p><button type="button">約 11.0 萬元</button><button type="button">約 13.0 萬元</button><button type="button" data-ok="1">約 13.4 萬元</button><p class="exp"></p></div></div>
+    <aside class="notes">答案都在第 5、10、11、15、18 頁。</aside>
+  </section>
+  <section class="slide" data-layout="recap" data-chapter="回顧" data-source="notes:conclusion">
+    <p class="kicker">重點回顧</p>
+    <h2>今天記住三件事</h2>
+    <div class="recap">
+      <div><b>一</b><span>通膨讓錢變薄；先存預備金、還高利債，再談投資</span></div>
+      <div><b>二</b><span>漲跌和昨收比；五檔看排隊；大盤不等於個股</span></div>
+      <div><b>三</b><span>下單有成本，T+2 前要準備好錢</span></div>
+    </div>
+    <aside class="notes">看懂盤面是為了理解市場，不是為了猜明天。</aside>
+  </section>
+  <section class="slide" data-layout="ending" data-chapter="資料來源" data-source="wiki/index.md">
+    <p class="kicker">資料來源</p>
+    <p class="disclaimer">本內容僅供學習，不構成任何投資建議。</p>
+    <ul class="dots">
+      <li class="src">內容來自理財新手村 Wiki（19 個頁面、23 份來源）：<a class="repo" data-path="wiki/paths/beginner-invest-order.md" href="../../wiki/paths/beginner-invest-order.md">準備順序</a>、<a class="repo" data-path="wiki/concepts/inflation.md" href="../../wiki/concepts/inflation.md">通膨</a>、<a class="repo" data-path="wiki/concepts/compound-interest.md" href="../../wiki/concepts/compound-interest.md">複利</a>、<a class="repo" data-path="wiki/concepts/emergency-fund.md" href="../../wiki/concepts/emergency-fund.md">緊急預備金</a>、<a class="repo" data-path="wiki/concepts/debt-first.md" href="../../wiki/concepts/debt-first.md">先理債</a>、<a class="repo" data-path="wiki/concepts/quote-screen.md" href="../../wiki/concepts/quote-screen.md">報價畫面</a>、<a class="repo" data-path="wiki/concepts/k-line.md" href="../../wiki/concepts/k-line.md">K 線</a>、<a class="repo" data-path="wiki/concepts/order-book.md" href="../../wiki/concepts/order-book.md">五檔</a>、<a class="repo" data-path="wiki/concepts/market-index.md" href="../../wiki/concepts/market-index.md">大盤</a>、<a class="repo" data-path="wiki/rules/trading-hours.md" href="../../wiki/rules/trading-hours.md">交易時間</a>、<a class="repo" data-path="wiki/rules/order-types.md" href="../../wiki/rules/order-types.md">委託種類</a>、<a class="repo" data-path="wiki/rules/trading-costs.md" href="../../wiki/rules/trading-costs.md">交易成本</a>、<a class="repo" data-path="wiki/rules/settlement-t2.md" href="../../wiki/rules/settlement-t2.md">T+2</a>、<a class="repo" data-path="wiki/concepts/default-settlement.md" href="../../wiki/concepts/default-settlement.md">違約交割</a>；<a class="repo" data-path="wiki/index.md" href="../../wiki/index.md">全部目錄</a></li>
+      <li class="src">制度數字為 2026 年規定，可能變動；標註 B 級者待法規確認</li>
+      <li class="src">圖片為原創，報價與五檔為虛構範例</li>
+    </ul>
+    <aside class="notes">每一條資訊的出處都可以在 GitHub 上的 Wiki 查到。</aside>
+  </section>
+</main>
+</div>
+<div class="progress"></div>
+<div class="pageno"></div>
+<div class="brand">理財新手村</div>
+<script>
+(function () {
+  var slides = [].slice.call(document.querySelectorAll('.slide'));
+  var bar = document.querySelector('.progress'), no = document.querySelector('.pageno');
+  var i = Math.max(0, Math.min(slides.length - 1, (parseInt(location.hash.slice(1), 10) || 1) - 1));
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function (s, k) { s.classList.toggle('active', k === i); });
+    bar.style.width = ((i + 1) / slides.length * 100) + '%';
+    no.textContent = pad(i + 1) + ' / ' + pad(slides.length);
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+  function interactive(t) { return t.closest('a, button, input, label, .q, .calc, .calc-c, .calc-f, .try, .toggle, .t2, .week, .sim, select'); }
+  document.addEventListener('keydown', function (e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+    if (['ArrowRight', 'PageDown', ' '].indexOf(e.key) > -1) { e.preventDefault(); show(i + 1); }
+    else if (['ArrowLeft', 'PageUp'].indexOf(e.key) > -1) { e.preventDefault(); show(i - 1); }
+    else if (e.key === 'Home') show(0); else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key === 'n' || e.key === 'N') document.body.classList.toggle('show-notes');
+    else if (e.key === 'f' || e.key === 'F') { if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+  });
+  document.addEventListener('click', function (e) { if (interactive(e.target)) return; show(e.clientX > innerWidth / 2 ? i + 1 : i - 1); });
+  var x0 = null;
+  document.addEventListener('touchstart', function (e) { x0 = interactive(e.target) ? null : e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', function (e) { if (x0 === null) return; var dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 50) show(dx < 0 ? i + 1 : i - 1); x0 = null; });
+
+  /* 小測驗 */
+  document.querySelectorAll('.q').forEach(function (q) {
+    q.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        q.querySelectorAll('button').forEach(function (x) { x.classList.remove('ok', 'ng'); });
+        b.classList.add(b.dataset.ok ? 'ok' : 'ng');
+        q.querySelector('.exp').textContent = (b.dataset.ok ? '答對了。' : '再想想。') + q.dataset.exp;
+      });
+    });
+  });
+  /* 交易成本試算器（假設不打折、未計最低手續費） */
+  document.querySelectorAll('.calc:not(.calc-c):not(.calc-f)').forEach(function (c) {
+    var p = c.querySelector('[name=price]'), s = c.querySelector('[name=shares]');
+    function fmt(n) { return n.toLocaleString('zh-TW', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' 元'; }
+    function run() {
+      var amt = (parseFloat(p.value) || 0) * (parseFloat(s.value) || 0);
+      var fee = amt * 0.001425, tax = amt * 0.003;
+      c.querySelector('[data-o=amt]').textContent = fmt(amt);
+      c.querySelector('[data-o=buy]').textContent = fmt(fee);
+      c.querySelector('[data-o=sell]').textContent = fmt(fee);
+      c.querySelector('[data-o=tax]').textContent = fmt(tax);
+      c.querySelector('[data-o=total]').textContent = fmt(fee * 2 + tax);
+    }
+    p.addEventListener('input', run); s.addEventListener('input', run); run();
+  });
+
+  /* 看答案 */
+  document.querySelectorAll('.try button').forEach(function (b) {
+    b.addEventListener('click', function () { var o = b.closest('.qbox').classList.toggle('open'); b.textContent = o ? '收起答案' : '看答案'; });
+  });
+  function money(n) { return Math.round(n).toLocaleString('zh-TW') + ' 元'; }
+  /* 複利試算（假設報酬率） */
+  document.querySelectorAll('.calc-c').forEach(function (c) {
+    var P = c.querySelector('[name=p]'), R = c.querySelector('[name=r]'), N = c.querySelector('[name=n]');
+    function run() {
+      var p = +P.value || 0, r = (+R.value || 0) / 100, n = +N.value || 0;
+      var comp = p * Math.pow(1 + r, n), simple = p + p * r * n;
+      c.querySelector('[data-o=comp]').textContent = money(comp);
+      c.querySelector('[data-o=simple]').textContent = money(simple);
+      c.querySelector('[data-o=gap]').textContent = money(comp - simple);
+      var mx = Math.max(comp, simple, p) || 1, bs = c.querySelectorAll('.bars div');
+      [[p, '本金'], [simple, '每年領出'], [comp, '複利']].forEach(function (v, k) {
+        bs[k].style.height = (v[0] / mx * 100) + '%'; bs[k].querySelector('span').textContent = money(v[0]);
+      });
+    }
+    [P, R, N].forEach(function (x) { x.addEventListener('input', run); }); run();
+  });
+  /* 緊急預備金試算 */
+  document.querySelectorAll('.calc-f').forEach(function (c) {
+    var S = c.querySelector('[name=salary]'), M = c.querySelector('[name=months]');
+    function run() { c.querySelector('[data-o=fund]').textContent = money((+S.value || 0) * (+M.value || 0)); }
+    [S, M].forEach(function (x) { x.addEventListener('input', run); }); run();
+  });
+  /* IOC / FOK 情境 */
+  document.querySelectorAll('.toggle').forEach(function (g) {
+    var out = g.parentNode.querySelector('.result');
+    g.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        g.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+        out.textContent = b.dataset.r;
+      });
+    });
+  });
+  /* T+2 推算（只跳過週末，不考慮國定假日） */
+  document.querySelectorAll('.t2').forEach(function (g) {
+    var days = g.parentNode.querySelectorAll('.week div'), out = g.parentNode.querySelector('.result');
+    var names = ['週一', '週二', '週三', '週四', '週五', '週六', '週日'];
+    g.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        g.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+        var t0 = +b.dataset.d, d = t0, left = 2, idx = [];
+        while (left > 0) { d++; if (d % 7 < 5) left--; }
+        days.forEach(function (x, k) { x.classList.remove('t0', 'pay'); if (k === t0) x.classList.add('t0'); if (k === d) x.classList.add('pay'); });
+        out.textContent = names[t0] + '成交 → ' + (d >= 7 ? '下' : '') + names[d % 7] + '上午 10 點前，交割帳戶要有錢。';
+      });
+    });
+  });
+  /* 模擬下單：虛構五檔、盤中逐筆交易時段；手續費 0.1425%、證交稅 0.3%（假設不打折、未計最低手續費；不考慮國定假日） */
+  document.querySelectorAll('.sim').forEach(function (m) {
+    var ASK = [[100.0, 10], [100.5, 20], [101.0, 15], [101.5, 30], [102.0, 25]];
+    var BID = [[99.9, 30], [99.8, 25], [99.7, 40], [99.6, 18], [99.5, 50]];
+    var HOLD = 50, st = { side: 'buy', unit: 'lot', ptype: 'limit', tif: 'ROD' };
+    var price = m.querySelector('[name=price]'), qty = m.querySelector('[name=qty]'), day = m.querySelector('[name=day]');
+    var out = m.querySelector('.ticket'), lock = m.querySelector('.lockmsg'), uLabel = m.querySelector('.ulabel');
+    var names = ['週一', '週二', '週三', '週四', '週五', '週六', '週日'];
+    function f1(p) { return p.toFixed(1); }
+    function sync() {
+      m.querySelectorAll('.srow[data-k]').forEach(function (r) {
+        r.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', st[r.dataset.k] === b.dataset.v); });
+      });
+      var odd = st.unit === 'odd';
+      m.querySelectorAll('[data-k=ptype] button, [data-k=tif] button').forEach(function (b) {
+        b.disabled = odd && ['market', 'IOC', 'FOK'].indexOf(b.dataset.v) > -1;
+      });
+      price.disabled = st.ptype === 'market';
+      uLabel.textContent = odd ? '股' : '張';
+      qty.max = odd ? 999 : 99;
+      lock.textContent = odd ? '零股只能用限價＋ROD，已自動鎖定。' : '';
+      m.querySelectorAll('tr').forEach(function (r) { r.classList.remove('hitA', 'hitB'); });
+    }
+    m.querySelectorAll('.srow[data-k] button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var k = b.closest('.srow').dataset.k; st[k] = b.dataset.v;
+        if (k === 'unit' && b.dataset.v === 'odd') { st.ptype = 'limit'; st.tif = 'ROD'; if (+qty.value < 1) qty.value = 100; }
+        if (k === 'unit' && b.dataset.v === 'lot' && +qty.value > 99) qty.value = 15;
+        sync();
+      });
+    });
+    function t2(d0) { var d = d0, left = 2; while (left > 0) { d++; if (d % 7 < 5) left--; } return (d >= 7 ? '下' : '') + names[d % 7]; }
+    m.querySelector('.send').addEventListener('click', function () {
+      sync();
+      var buy = st.side === 'buy', odd = st.unit === 'odd', q = +qty.value, lim = +price.value, unit = odd ? '股' : '張';
+      var sum = '你的委託單：' + (buy ? '買進' : '賣出') + ' 範例股 0000｜' + (odd ? '零股 ' : '整股 ') + q + ' ' + unit + '｜' +
+        (st.ptype === 'market' ? '市價' : '限價 ' + f1(lim) + ' 元') + '｜' + st.tif;
+      var max = odd ? 999 : 99;
+      if (!(q >= 1 && q <= max && Math.floor(q) === q)) { out.innerHTML = '<p class="t-sum">' + sum + '</p><p class="err">數量要填 1～' + max + ' 的整數' + unit + '。</p>'; return; }
+      if (!buy && !odd && q > HOLD) { out.innerHTML = '<p class="t-sum">' + sum + '</p><p class="err">你只有 ' + HOLD + ' 張，不能賣 ' + q + ' 張。</p>'; return; }
+      if (odd) { out.innerHTML = '<p class="t-sum">' + sum + '</p><p>委託已送出。盤中零股是另一個排隊市場，成交價可能和整股不同，所以右邊的整股五檔不適用。</p><p class="note-sm" style="margin:0">本模擬不示範零股的成交結果。</p>'; return; }
+      var book = buy ? ASK : BID, mk = st.ptype === 'market';
+      function ok(p) { return mk || (buy ? p <= lim : p >= lim); }
+      var avail = 0; book.forEach(function (l) { if (ok(l[0])) avail += l[1]; });
+      var fills = [], left = q, rows = m.querySelectorAll('table.book tr');
+      if (!(st.tif === 'FOK' && avail < q)) {
+        book.forEach(function (l, k) { if (left > 0 && ok(l[0])) { var n = Math.min(left, l[1]); fills.push([l[0], n]); left -= n; rows[k + 1].classList.add(buy ? 'hitA' : 'hitB'); } });
+      }
+      var got = q - left, html = '<p class="t-sum">' + sum + '</p>';
+      if (got) html += '<p><b>成交 ' + got + ' 張：</b>' + fills.map(function (x) { return f1(x[0]) + ' 元 × ' + x[1] + ' 張'; }).join('、') + '</p>';
+      if (st.tif === 'FOK' && avail < q) html += '<p><b>整筆取消：</b>現在只能馬上成交 ' + avail + ' 張，不能一次全部成交。</p>';
+      else if (left && st.tif === 'IOC') html += got ? '<p><b>剩下 ' + left + ' 張立即取消。</b></p>' : '<p><b>全部 ' + left + ' 張立即取消：</b>現在沒有' + (buy ? '開價 ' + f1(lim) + ' 元以下的賣單' : '出價 ' + f1(lim) + ' 元以上的買單') + '可以馬上成交。</p>';
+      else if (left) html += '<p><b>' + (got ? '剩下 ' : '全部 ') + left + ' 張繼續排隊：</b>以 ' + f1(lim) + ' 元排在' + (buy ? '委買' : '委賣') + '，同價位排在先送出的單後面；今天收盤前有效。</p>';
+      if (got) {
+        var amt = 0; fills.forEach(function (x) { amt += x[0] * x[1] * 1000; });
+        var fee = amt * 0.001425, tax = buy ? 0 : amt * 0.003, d = t2(+day.value);
+        html += '<p>成交金額 ' + money(amt) + '｜手續費 ' + money(fee) + (buy ? '' : '｜證交稅 ' + money(tax)) + '</p>';
+        html += buy ? '<p><b>' + d + '上午 10 點前</b>，交割帳戶要有 ' + money(amt + fee) + '。</p>'
+                    : '<p><b>' + d + '上午 11 點後</b>，約 ' + money(amt - fee - tax) + ' 匯入交割帳戶。</p>';
+      }
+      out.innerHTML = html;
+    });
+    sync();
+  });
+  /* 放在 GitHub Pages（帳號.github.io/repo/）時，把 Wiki 連結換成 GitHub 上的檔案網址 */
+  (function () {
+    var h = location.hostname, seg = location.pathname.split('/').filter(Boolean);
+    if (!/\.github\.io$/.test(h) || !seg.length) return;
+    var base = 'https://github.com/' + h.split('.')[0] + '/' + seg[0] + '/blob/main/';
+    document.querySelectorAll('a.repo').forEach(function (a) { a.href = base + a.dataset.path; });
+  })();
+  show(i);
+})();
+</script>
+</body>
+</html>
